@@ -4,7 +4,7 @@ import * as path from 'path';
 import { RULES_FILENAME } from './constants';
 
 const readFile = (filePath: string) => {
-	const file = fs.readFileSync(filePath, 'utf-8');
+	const file: string = fs.readFileSync(filePath, 'utf-8');
 	return file;
 };
 
