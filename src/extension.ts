@@ -1,16 +1,18 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-
-import { messages, RULES_FILENAME } from './constants';
+import * as YAML from 'yaml';
+import { messages } from './constants';
+import Rules from './interfaces/RulesInterface';
 import {
 	checkIfFolderIsLaunched,
 	checkRulesFilesExistingOrNot,
 	cleanUpExistingFileSystemWatchers,
-	readFile,
-	setupFileSystemWatcher
+	setupFileSystemWatcher,
 } from './utils';
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -41,20 +43,30 @@ export function activate(context: vscode.ExtensionContext) {
 			// clean up existing filesystem watchers
 			watchers = cleanUpExistingFileSystemWatchers(watchers);
 
-			const y: string = readFile(
-				path.join(
-					vscode.workspace.workspaceFolders?.[0].uri.fsPath!,
-					RULES_FILENAME
-				)
-			);
-
-			watchers.push(setupFileSystemWatcher(y));
+			watchers.push(setupFileSystemWatcher());
 
 			for (let watcher of watchers) {
 				watcher.onDidCreate((event) => {
 					vscode.window.showInformationMessage(event.fsPath);
 				});
 			}
+
+			const x: string = fs.readFileSync(
+				path.join(
+					vscode.workspace.workspaceFolders?.[0].uri.fsPath!,
+					'rules.yml'
+				),
+				'utf-8'
+			);
+
+			const rulesData: any = YAML.parse(x);
+
+			console.log(rulesData);
+
+			// display a confirmation message to the user that the command execution is successful
+			vscode.window.showInformationMessage(
+				'FileSystem Validator is Ready!'
+			);
 		}
 	);
 
