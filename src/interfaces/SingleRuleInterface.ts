@@ -1,7 +1,7 @@
-interface Rule{
+interface SingleRule{
 	extensions: string | [],
 	startsWith: string,
 	destination: string
 }
 
-export default Rule;
+export default SingleRule;

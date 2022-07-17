@@ -1,7 +1,7 @@
-import Rule from "./RuleInterface";
+import SingleRule from './SingleRuleInterface';
 
 interface Rules {
-	rules: Rule[]
+	rules: SingleRule[];
 }
 
 export default Rules;
