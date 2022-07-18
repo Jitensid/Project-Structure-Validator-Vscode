@@ -11,7 +11,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:project-structure-validator.validateProjectStructure"
+		"onCommand:project-structure-validator.validateProjectStructure",
+		"onCommand:project-structure-validator.a"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -19,6 +20,11 @@
 			{
 				"command": "project-structure-validator.validateProjectStructure",
 				"title": "Validate Project Structure",
+				"category": "Project Structure Validator"
+			},
+			{
+				"command": "project-structure-validator.a",
+				"title": "Validate YAML",
 				"category": "Project Structure Validator"
 			}
 		]
@@ -42,6 +48,8 @@
 		"@typescript-eslint/eslint-plugin": "^5.30.0",
 		"@typescript-eslint/parser": "^5.30.0",
 		"@vscode/test-electron": "^2.1.5",
+		"ajv": "^8.11.0",
+		"better-ajv-errors": "^1.2.0",
 		"eslint": "^8.18.0",
 		"glob": "^8.0.3",
 		"mocha": "^10.0.0",
