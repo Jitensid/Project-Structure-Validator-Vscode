@@ -12,22 +12,28 @@ const singleRuleSchema = {
 	$id: 'https://example.com/schemas/singleRulesSchema',
 	type: 'object',
 	properties: {
-		extensions: {
-			anyOf: [
-				{ type: 'string' },
-				{
-					type: 'array',
-					minItems: 1,
-					items: {
-						type: 'string',
-					},
+		rule: {
+			type: 'object',
+			properties: {
+				extensions: {
+					anyOf: [
+						{ type: 'string' },
+						{
+							type: 'array',
+							minItems: 1,
+							items: {
+								type: 'string',
+							},
+						},
+					],
 				},
-			],
+				startsWith: { type: 'string' },
+				destination: { type: 'string' },
+			},
+			required: ['extensions', 'destination'],
 		},
-		startsWith: { type: 'string' },
-		destination: { type: 'string' },
 	},
-	required: ['extensions', 'destination'],
+	required: ['rule'],
 };
 
 export default singleRuleSchema;
