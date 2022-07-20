@@ -1,9 +1,12 @@
 const RULES_FILENAME: string = 'rules.yml';
 
+const COSMIC_CONFIG_MODULE_NAME: string = 'structure';
+
 const messages: { [key: string]: string } = {
-    rulesFileMissing: `${RULES_FILENAME} is not present in the working directory`,
+    configFileMissing: `${RULES_FILENAME} is not present in the working directory`,
     folderNotLaunched: 'Please launch vscode with a folder',
-    rulesFilesHasSyntaxError: `${RULES_FILENAME} has a syntax error`,
+    rulesFilesHasSyntaxError: 'Syntax Error while parsing the config file',
+    configFileEmptyOrMissing: 'Config File is missing or it is empty',
 };
 
-export { RULES_FILENAME, messages };
+export { RULES_FILENAME, messages, COSMIC_CONFIG_MODULE_NAME };

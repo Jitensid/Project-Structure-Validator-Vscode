@@ -1,97 +1,92 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import betterAjvErrors from "better-ajv-errors";
-import * as path from "path";
-import * as vscode from "vscode";
-import { messages, RULES_FILENAME } from "./constants";
-import { rulesSchema, validateRulesSchema } from "./schema/RulesSchema";
+import { CosmiconfigResult } from 'cosmiconfig/dist/types';
+import * as vscode from 'vscode';
+import { messages } from './constants/constants';
+import Rules from './interfaces/RulesInterface';
+import searchForRulesFileConfig from './rulesFileConfig/rulesFileConfigUtils';
+import { validateRulesSchema } from './schema/RulesSchema';
 import {
-  checkIfFolderIsLaunched,
-  checkRulesFilesExistingOrNot,
-  cleanUpExistingFileSystemWatchers,
-  loadDataFromRulesFile,
-  setupFileSystemWatcher,
-} from "./utils";
+    checkIfFolderIsLaunched,
+    cleanUpExistingFileSystemWatchers,
+    generateFileSystemWatcherRules,
+    setupFileSystemWatcher,
+} from './utils';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
+    // Use the console to output diagnostic information (console.log) and errors (console.error)
+    // This line of code will only be executed once when your extension is activated
+    // The command has been defined in the package.json file
+    // Now provide the implementation of the command with registerCommand
+    // The commandId parameter must match the command field in package.json
 
-  // array to store filesystem watchers for different files
-  let watchers: vscode.FileSystemWatcher[] = [];
+    // array to store filesystem watchers for different files
+    let watchers: vscode.FileSystemWatcher[] = [];
 
-  let validateProjectStructure = vscode.commands.registerCommand(
-    "project-structure-validator.validateProjectStructure",
-    () => {
-      // if vscode is not launched with a folder then raise an error message
-      if (!checkIfFolderIsLaunched()) {
-        vscode.window.showErrorMessage(messages.folderNotLaunched);
-        return;
-      }
+    let validateProjectStructure = vscode.commands.registerCommand(
+        'project-structure-validator.validateProjectStructure',
+        () => {
+            // if vscode is not launched with a folder then raise an error message
+            if (!checkIfFolderIsLaunched()) {
+                vscode.window.showErrorMessage(messages.folderNotLaunched);
+                return;
+            }
 
-      // if rules file is absent in the folder then raise an error message
-      if (!checkRulesFilesExistingOrNot()) {
-        vscode.window.showErrorMessage(messages.rulesFileMissing);
-        return;
-      }
+            // error status and config after searching and parsing of config
+            const searchForRulesFileConfigResults: [
+                boolean,
+                CosmiconfigResult
+            ] = searchForRulesFileConfig();
 
-      // path to the rules file present in the folder
-      const rulesFilePath = path.join(
-        vscode.workspace.workspaceFolders?.[0].uri.fsPath!,
-        RULES_FILENAME
-      );
+            // if some error then terminate further execution of the command
+            if (searchForRulesFileConfigResults[0]) {
+                return;
+            }
 
-      // extract the rulesData from the rules file present in the directory
-      const rulesData: any = loadDataFromRulesFile(rulesFilePath);
+            const configValidation: boolean | PromiseLike<any> =
+                validateRulesSchema(searchForRulesFileConfigResults[1]?.config);
 
-      // evaluate the RulesSchema present in the rules file given by the user
-      const valid = validateRulesSchema(rulesData);
+            if (!configValidation) {
+                vscode.window.showErrorMessage(
+                    'Syntax does not match the desired Schema'
+                );
+                return;
+            }
 
-      // if RulesSchema validation fails
-      if (!valid) {
-        const output = betterAjvErrors(
-          rulesSchema,
-          rulesData,
-          validateRulesSchema.errors!,
-          { format: "js" }
-        );
+            let rules: Rules = JSON.parse(
+                JSON.stringify(searchForRulesFileConfigResults[1]?.config)
+            );
 
-        // display appropriate error message if there is a syntax error
-        // present in the rules file
-        vscode.window.showErrorMessage(messages.rulesFilesHasSyntaxError);
+            generateFileSystemWatcherRules(rules);
 
-        return;
-      }
+            // clean up existing filesystem watchers
+            watchers = cleanUpExistingFileSystemWatchers(watchers);
 
-      // clean up existing filesystem watchers
-      watchers = cleanUpExistingFileSystemWatchers(watchers);
+            // append watchers based on existing rules present in rules.yml file
+            watchers.push(setupFileSystemWatcher());
 
-      // append watchers based on existing rules present in rules.yml file
-      watchers.push(setupFileSystemWatcher());
+            // iterate all filesystem watchers and attach a onChange event
+            for (let watcher of watchers) {
+                watcher.onDidCreate((event) => {
+                    vscode.window.showInformationMessage(event.fsPath);
+                });
+            }
 
-      // iterate all filesystem watchers and attach a onChange event
-      for (let watcher of watchers) {
-        watcher.onDidCreate((event) => {
-          vscode.window.showInformationMessage(event.fsPath);
-        });
-      }
+            vscode.window.showInformationMessage('Worked');
+        }
+    );
 
-      vscode.window.showInformationMessage("Worked");
-    }
-  );
+    let a = vscode.commands.registerCommand(
+        'project-structure-validator.a',
+        () => {
+            searchForRulesFileConfig();
+        }
+    );
 
-  let a = vscode.commands.registerCommand(
-    "project-structure-validator.a",
-    () => {}
-  );
-
-  context.subscriptions.push(validateProjectStructure);
-  context.subscriptions.push(a);
+    context.subscriptions.push(validateProjectStructure);
+    context.subscriptions.push(a);
 }
 
 // this method is called when your extension is deactivated

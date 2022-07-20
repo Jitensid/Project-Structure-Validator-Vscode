@@ -1,8 +1,9 @@
-import * as vscode from "vscode";
-import * as fs from "fs";
-import * as path from "path";
-import * as YAML from "yaml";
-import { RULES_FILENAME } from "./constants";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as vscode from 'vscode';
+import * as YAML from 'yaml';
+import { RULES_FILENAME } from './constants/constants';
+import Rules from './interfaces/RulesInterface';
 
 /**
  * Function to read the data present in a file
@@ -10,30 +11,30 @@ import { RULES_FILENAME } from "./constants";
  * @returns {string} file - contents of the file
  */
 const loadDataFromRulesFile = (filePath: string): string => {
-  // read data of file in string
-  const fileContents: string = fs.readFileSync(filePath, "utf-8");
+    // read data of file in string
+    const fileContents: string = fs.readFileSync(filePath, 'utf-8');
 
-  // parse yaml data as string
-  const rulesData: any = YAML.parse(fileContents);
+    // parse yaml data as string
+    const rulesData: any = YAML.parse(fileContents);
 
-  // return the data extracted from the file
-  return rulesData;
+    // return the data extracted from the file
+    return rulesData;
 };
 
 const setupFileSystemWatcher = (): vscode.FileSystemWatcher => {
-  let watcher: vscode.FileSystemWatcher;
+    let watcher: vscode.FileSystemWatcher;
 
-  watcher = vscode.workspace.createFileSystemWatcher(
-    new vscode.RelativePattern(
-      vscode.workspace.workspaceFolders?.[0]!,
-      "**/*.{png,jpg,gif,jpeg,mp3,mp4}"
-    ),
-    false,
-    true,
-    true
-  );
+    watcher = vscode.workspace.createFileSystemWatcher(
+        new vscode.RelativePattern(
+            vscode.workspace.workspaceFolders?.[0]!,
+            '**/*.{png,jpg,gif,jpeg,mp3,mp4}'
+        ),
+        false,
+        true,
+        true
+    );
 
-  return watcher;
+    return watcher;
 };
 
 /**
@@ -41,11 +42,23 @@ const setupFileSystemWatcher = (): vscode.FileSystemWatcher => {
  * @returns {boolean} - true if vscode is launched with a folder or else return false
  */
 const checkIfFolderIsLaunched = (): boolean => {
-  // if no workspace folder found then return false
-  if (vscode.workspace.workspaceFolders === undefined) {
-    return false;
-  }
-  return true;
+    // if no workspace folder found then return false
+    if (vscode.workspace.workspaceFolders === undefined) {
+        return false;
+    }
+    return true;
+};
+
+/**
+ * Function that returns the workSpaceFolderPath
+ * This function should be called only when `checkIfFolderIsLaunched` function returns true
+ * @returns {string} workSpaceFolderPath
+ */
+const getWorkspaceFolderPath = (): string => {
+    const workSpaceFolderPath: string =
+        vscode.workspace.workspaceFolders?.[0].uri.fsPath!;
+
+    return workSpaceFolderPath;
 };
 
 /**
@@ -53,18 +66,18 @@ const checkIfFolderIsLaunched = (): boolean => {
  * @returns {boolean} - true if rules file is present else return false
  */
 const checkRulesFilesExistingOrNot = (): boolean => {
-  // set the path og the file containing rules to check if it exists
-  const rulesFilePath = path.join(
-    vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath!,
-    RULES_FILENAME
-  );
+    // set the path og the file containing rules to check if it exists
+    const rulesFilePath: string = path.join(
+        vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath!,
+        RULES_FILENAME
+    );
 
-  // return true if present
-  if (fs.existsSync(rulesFilePath)) {
-    return true;
-  }
+    // return true if present
+    if (fs.existsSync(rulesFilePath)) {
+        return true;
+    }
 
-  return false;
+    return false;
 };
 
 /**
@@ -73,23 +86,36 @@ const checkRulesFilesExistingOrNot = (): boolean => {
  * @returns {vscode.FileSystemWatcher[]} watchers - array of filesystem watchers
  */
 const cleanUpExistingFileSystemWatchers = (
-  watchers: vscode.FileSystemWatcher[]
+    watchers: vscode.FileSystemWatcher[]
 ): vscode.FileSystemWatcher[] => {
-  //  dispose previously existing FileSystemWatcher
-  for (let watcher of watchers) {
-    watcher.dispose();
-  }
+    //  dispose previously existing FileSystemWatcher
+    for (let watcher of watchers) {
+        watcher.dispose();
+    }
 
-  // remove all the elements from the watchers array
-  watchers.splice(0);
+    // remove all the elements from the watchers array
+    watchers.splice(0);
 
-  return watchers;
+    return watchers;
+};
+
+/**
+ * Function to generate FileSystemWatcher Rules from the rules object extracted from the rules file
+ * @param {Rules} rules - array of filesystem watchers
+ * @returns {vscode.FileSystemWatcher[]} fileSystemWatcherRules - array of filesystem watchers
+ */
+const generateFileSystemWatcherRules = (rules: Rules) => {
+    let fileSystemWatcherRules: vscode.RelativePattern[] = [];
+
+    return fileSystemWatcherRules;
 };
 
 export {
-  loadDataFromRulesFile,
-  setupFileSystemWatcher,
-  cleanUpExistingFileSystemWatchers,
-  checkRulesFilesExistingOrNot,
-  checkIfFolderIsLaunched,
+    loadDataFromRulesFile,
+    setupFileSystemWatcher,
+    cleanUpExistingFileSystemWatchers,
+    checkRulesFilesExistingOrNot,
+    checkIfFolderIsLaunched,
+    generateFileSystemWatcherRules,
+    getWorkspaceFolderPath,
 };
