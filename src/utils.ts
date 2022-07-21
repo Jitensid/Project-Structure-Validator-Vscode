@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as YAML from 'yaml';
+import FileSystemWatcherArray from './interfaces/FileSystemWatcherArray';
+import FileSystemWatcherArrayElement from './interfaces/FileSystemWatcherArrayElement';
 import Rules from './interfaces/RulesInterface';
 import SingleRule from './interfaces/SingleRuleInterface';
 
@@ -46,21 +48,21 @@ const getWorkspaceFolderPath = (): string => {
 
 /**
  * Function to dispose the existing file system watchers
- * @param {[vscode.FileSystemWatcher, string][]} watchers - array of tuple of filesystem watchers and their desired destinations of the files
- * @returns {[vscode.FileSystemWatcher, string][]} watchers - array of tuple of filesystem watchers and their desired destinations of the files
+ * @param {FileSystemWatcherArray} watchers - FileSystemWatcherArray containing list of fileSystemWatcherElement
+ * @returns {FileSystemWatcherArray} watchers - FileSystemWatcherArray containing list of fileSystemWatcherElement with disposed fileSystemWatchers
  */
-const cleanUpExistingFileSystemWatchers = (
-    watchersAndDestinations: [vscode.FileSystemWatcher, string][]
-): [vscode.FileSystemWatcher, string][] => {
+const disposeExistingFileSystemWatchersFromFileSystemWatcherArray = (
+    fileSystemWatcherArray: FileSystemWatcherArray
+): FileSystemWatcherArray => {
     //  dispose previously existing FileSystemWatcher
-    for (let [watcher, destination] of watchersAndDestinations) {
-        watcher.dispose();
+    for (let fileSystemWatcherElement of fileSystemWatcherArray.fileSystemWatchers) {
+        fileSystemWatcherElement.fileSystemWatcher.dispose();
     }
 
-    // remove all the elements from the watchers array
-    watchersAndDestinations.splice(0);
+    // remove all the elements from the fileSystemWatcherArray
+    fileSystemWatcherArray.fileSystemWatchers.splice(0);
 
-    return watchersAndDestinations;
+    return fileSystemWatcherArray;
 };
 
 /**
@@ -172,12 +174,13 @@ const generateFileSystemWatcherRelativePattern = (rule: SingleRule) => {
  *
  * Function to generate FileSystemWatcher from the rules provided by the user
  * @param {Rules} rules - array of filesystem watchers
- * @returns {[vscode.FileSystemWatcher, string][]} fileSystemWatchersBasedOnRules - array of filesystem watchers
+ * @returns {FileSystemWatcherArray} fileSystemWatcherArray - fileSystemWatcherArray having fileSystemWatcherArrayElement
  */
 const generateFileSystemWatcherRules = (rules: Rules) => {
-    // array of tuple of fileSystemWatcher and destination
-    let fileSystemWatchersBasedOnRules: [vscode.FileSystemWatcher, string][] =
-        [];
+    // fileSystemWatcherArray having fileSystemWatcherArrayElements to store watchers and other required properties
+    let fileSystemWatcherArray: FileSystemWatcherArray = {
+        fileSystemWatchers: [],
+    };
 
     // iterate all rules
     for (let rule of rules.rules) {
@@ -194,16 +197,25 @@ const generateFileSystemWatcherRules = (rules: Rules) => {
                 true
             );
 
-        // append the fileSystemWatcher along with the destination
-        fileSystemWatchersBasedOnRules.push([watcher, rule.rule.destination]);
+        // create an element with required properties
+        const fileSystemWatcherArrayElement: FileSystemWatcherArrayElement = {
+            destination: rule.rule.destination,
+            fileSystemWatcher: watcher,
+            errorMessage: 'errorMessage',
+        };
+
+        // append the fileSystemWatcherArrayElement
+        fileSystemWatcherArray.fileSystemWatchers.push(
+            fileSystemWatcherArrayElement
+        );
     }
 
-    return fileSystemWatchersBasedOnRules;
+    return fileSystemWatcherArray;
 };
 
 export {
     loadDataFromRulesFile,
-    cleanUpExistingFileSystemWatchers,
+    disposeExistingFileSystemWatchersFromFileSystemWatcherArray,
     checkIfFolderIsLaunched,
     generateFileSystemWatcherRules,
     getWorkspaceFolderPath,

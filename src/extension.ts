@@ -3,12 +3,13 @@
 import { CosmiconfigResult } from 'cosmiconfig/dist/types';
 import * as vscode from 'vscode';
 import { messages } from './constants/constants';
+import FileSystemWatcherArray from './interfaces/FileSystemWatcherArray';
 import Rules from './interfaces/RulesInterface';
 import searchForRulesFileConfig from './rulesFileConfig/rulesFileConfigUtils';
 import { validateRulesSchema } from './schema/RulesSchema';
 import {
     checkIfFolderIsLaunched,
-    cleanUpExistingFileSystemWatchers,
+    disposeExistingFileSystemWatchersFromFileSystemWatcherArray,
     generateFileSystemWatcherRules,
 } from './utils';
 
@@ -21,8 +22,10 @@ export function activate(context: vscode.ExtensionContext) {
     // Now provide the implementation of the command with registerCommand
     // The commandId parameter must match the command field in package.json
 
-    // array to store filesystem watchers and their destinations
-    let watchersAndDestinations: [vscode.FileSystemWatcher, string][] = [];
+    // array to store filesystem watcher elements
+    let fileSystemWatcherArray: FileSystemWatcherArray = {
+        fileSystemWatchers: [],
+    };
 
     let validateProjectStructure = vscode.commands.registerCommand(
         'project-structure-validator.validateProjectStructure',
@@ -59,44 +62,44 @@ export function activate(context: vscode.ExtensionContext) {
             let rules: Rules = searchForRulesFileConfigResults[1]?.config;
 
             // clean up existing filesystem watchers
-            watchersAndDestinations = cleanUpExistingFileSystemWatchers(
-                watchersAndDestinations
-            );
+            fileSystemWatcherArray =
+                disposeExistingFileSystemWatchersFromFileSystemWatcherArray(
+                    fileSystemWatcherArray
+                );
+
+            console.log({ fileSystemWatcherArray });
 
             // create appropriate fileSystem watchers rules and their destinations based on the rules given by the user
-            watchersAndDestinations = generateFileSystemWatcherRules(rules);
+            fileSystemWatcherArray = generateFileSystemWatcherRules(rules);
 
-            // iterate all watchersAndDestinations
-            watchersAndDestinations.map(([watcher, destination]) => {
-                // when a file of specific regex is created then following
-                // function gets executed
-                watcher.onDidCreate((event) => {
-                    const watchedFilePath: string = event.fsPath;
+            fileSystemWatcherArray.fileSystemWatchers.map(
+                (fileSystemWatcherArrayElement) => {
+                    fileSystemWatcherArrayElement.fileSystemWatcher.onDidCreate(
+                        (event) => {
+                            const watchedFilePath: string = event.fsPath;
 
-                    const watchedFilePathSplit: string[] =
-                        watchedFilePath.split('\\');
+                            const watchedFilePathSplit: string[] =
+                                watchedFilePath.split('\\');
 
-                    if (
-                        watchedFilePathSplit[
-                            watchedFilePathSplit.length - 2
-                        ] !== destination
-                    ) {
-                        vscode.window.showErrorMessage('Rule Violated');
-                    }
-                });
-            });
+                            if (
+                                watchedFilePathSplit[
+                                    watchedFilePathSplit.length - 2
+                                ] !== fileSystemWatcherArrayElement.destination
+                            ) {
+                                vscode.window.showErrorMessage(
+                                    fileSystemWatcherArrayElement.errorMessage
+                                );
+                            }
+                        }
+                    );
+                }
+            );
 
             vscode.window.showInformationMessage('Worked');
         }
     );
 
-    let a = vscode.commands.registerCommand(
-        'project-structure-validator.a',
-        () => {}
-    );
-
     context.subscriptions.push(validateProjectStructure);
-    context.subscriptions.push(a);
 }
 
 // this method is called when your extension is deactivated
