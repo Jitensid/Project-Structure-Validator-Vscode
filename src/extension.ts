@@ -10,7 +10,6 @@ import {
     checkIfFolderIsLaunched,
     cleanUpExistingFileSystemWatchers,
     generateFileSystemWatcherRules,
-    setupFileSystemWatcher,
 } from './utils';
 
 // this method is called when your extension is activated
@@ -22,8 +21,8 @@ export function activate(context: vscode.ExtensionContext) {
     // Now provide the implementation of the command with registerCommand
     // The commandId parameter must match the command field in package.json
 
-    // array to store filesystem watchers for different files
-    let watchers: vscode.FileSystemWatcher[] = [];
+    // array to store filesystem watchers and their destinations
+    let watchersAndDestinations: [vscode.FileSystemWatcher, string][] = [];
 
     let validateProjectStructure = vscode.commands.registerCommand(
         'project-structure-validator.validateProjectStructure',
@@ -45,9 +44,11 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
+            // validate if the rules parsed from the config follow the desired schema
             const configValidation: boolean | PromiseLike<any> =
                 validateRulesSchema(searchForRulesFileConfigResults[1]?.config);
 
+            // if invalid then terminate command execution and display an error message to the user
             if (!configValidation) {
                 vscode.window.showErrorMessage(
                     'Syntax does not match the desired Schema'
@@ -55,24 +56,35 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            let rules: Rules = JSON.parse(
-                JSON.stringify(searchForRulesFileConfigResults[1]?.config)
-            );
-
-            generateFileSystemWatcherRules(rules);
+            let rules: Rules = searchForRulesFileConfigResults[1]?.config;
 
             // clean up existing filesystem watchers
-            watchers = cleanUpExistingFileSystemWatchers(watchers);
+            watchersAndDestinations = cleanUpExistingFileSystemWatchers(
+                watchersAndDestinations
+            );
 
-            // append watchers based on existing rules present in rules.yml file
-            watchers.push(setupFileSystemWatcher());
+            // create appropriate fileSystem watchers rules and their destinations based on the rules given by the user
+            watchersAndDestinations = generateFileSystemWatcherRules(rules);
 
-            // iterate all filesystem watchers and attach a onChange event
-            for (let watcher of watchers) {
+            // iterate all watchersAndDestinations
+            watchersAndDestinations.map(([watcher, destination]) => {
+                // when a file of specific regex is created then following
+                // function gets executed
                 watcher.onDidCreate((event) => {
-                    vscode.window.showInformationMessage(event.fsPath);
+                    const watchedFilePath: string = event.fsPath;
+
+                    const watchedFilePathSplit: string[] =
+                        watchedFilePath.split('\\');
+
+                    if (
+                        watchedFilePathSplit[
+                            watchedFilePathSplit.length - 2
+                        ] !== destination
+                    ) {
+                        vscode.window.showErrorMessage('Rule Violated');
+                    }
                 });
-            }
+            });
 
             vscode.window.showInformationMessage('Worked');
         }
@@ -80,9 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     let a = vscode.commands.registerCommand(
         'project-structure-validator.a',
-        () => {
-            searchForRulesFileConfig();
-        }
+        () => {}
     );
 
     context.subscriptions.push(validateProjectStructure);
