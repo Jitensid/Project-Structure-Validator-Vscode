@@ -3,7 +3,7 @@ interface SingleRule {
         extensions: string | string[];
         startsWith: string;
         endsWith: string;
-        destination: string;
+        destination: string | string[];
     };
 }
 

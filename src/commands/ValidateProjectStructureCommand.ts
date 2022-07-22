@@ -298,19 +298,14 @@ class ValidateProjectStructureCommand {
                 // attach a file creation event on the fileSystemWatcher based on the regex
                 fileSystemWatcherArrayElement.fileSystemWatcher.onDidCreate(
                     (event) => {
-                        // get the path of the newly created file
-                        const watchedFilePath: string = event.fsPath;
+                        // check whether the newly created file violates the rule or not
+                        const ruleViolated: boolean = this.validateFile(
+                            fileSystemWatcherArrayElement,
+                            event.fsPath
+                        );
 
-                        // split the path into array of strings
-                        const watchedFilePathSplit: string[] =
-                            watchedFilePath.split('\\');
-
-                        // if the parent directory does not matches destination then display an Error Message
-                        if (
-                            watchedFilePathSplit[
-                                watchedFilePathSplit.length - 2
-                            ] !== fileSystemWatcherArrayElement.destination
-                        ) {
+                        // if rule is violated then display an meaningful error message to the user
+                        if (ruleViolated) {
                             vscode.window.showErrorMessage(
                                 fileSystemWatcherArrayElement.errorMessage
                             );
@@ -321,6 +316,69 @@ class ValidateProjectStructureCommand {
         );
 
         return fileSystemWatcherArray;
+    };
+
+    /**
+     * Function to validate newly created file by validating the file system path with it's desired destination
+     * @param {FileSystemWatcherArrayElement} fileSystemWatcherArrayElement - fileSystemWatcherArrayElement containing information about the user
+     * @param {string} newFilePath - path of the newly created file that matched the fileSystem watcher's regex pattern
+     * @returns {boolean} ruleViolated - indicates whether the rule is violated or not
+     */
+    private validateFile = (
+        fileSystemWatcherArrayElement: FileSystemWatcherArrayElement,
+        newFilePath: string
+    ): boolean => {
+        let ruleViolated: boolean = true;
+
+        // split the path into array of strings and store the path in reverse order
+        const watchedFilePathSplit: string[] = newFilePath
+            .split('\\')
+            .reverse();
+
+        // array to store names of the folder based on rules provided by the user
+        // paths will be stored in the reverse order so the folder nearest to the file is evaluated with it's corresponding destination first
+        let fileSystemWatcherArrayElementDestinationPaths: string[] = [];
+
+        // if the user has provided destination in the rule as string then simply assign it as 1st element
+        if (typeof fileSystemWatcherArrayElement.destination === 'string') {
+            fileSystemWatcherArrayElementDestinationPaths.push(
+                fileSystemWatcherArrayElement.destination
+            );
+        }
+
+        // if the user has provided destination in the rule as array then simply assign it as array
+        else if (Array.isArray(fileSystemWatcherArrayElement.destination)) {
+            fileSystemWatcherArrayElementDestinationPaths =
+                fileSystemWatcherArrayElement.destination.reverse();
+        }
+
+        // folder index of the newly file created
+        let newFilePathFolderIndex: number = 1;
+
+        // if the number of folders mentioned in the rule is greater than the number of folders inside the newly created file then
+        // return ruleViolated equal to true
+        if (
+            fileSystemWatcherArrayElementDestinationPaths.length >=
+            watchedFilePathSplit.length
+        ) {
+            return ruleViolated;
+        }
+
+        // iterate all folder names to compare both the paths
+        for (let folderName of fileSystemWatcherArrayElementDestinationPaths) {
+            if (folderName === watchedFilePathSplit[newFilePathFolderIndex]) {
+                newFilePathFolderIndex += 1;
+            }
+            // if mismatch exists then return error
+            else {
+                return ruleViolated;
+            }
+        }
+
+        // indicate there is no error
+        ruleViolated = false;
+
+        return ruleViolated;
     };
 }
 

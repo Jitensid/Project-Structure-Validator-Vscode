@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 interface FileSystemWatcherArrayElement {
-    destination: string;
+    destination: string | string[];
     fileSystemWatcher: vscode.FileSystemWatcher;
     errorMessage: string;
 }

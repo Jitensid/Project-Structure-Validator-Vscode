@@ -29,7 +29,18 @@ const singleRuleSchema = {
                 },
                 startsWith: { type: 'string' },
                 endsWith: { type: 'string' },
-                destination: { type: 'string' },
+                destination: {
+                    anyOf: [
+                        { type: 'string' },
+                        {
+                            type: 'array',
+                            minItems: 1,
+                            items: {
+                                type: 'string',
+                            },
+                        },
+                    ],
+                },
             },
             required: ['extensions', 'destination'],
         },
