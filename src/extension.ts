@@ -8,6 +8,7 @@ import Rules from './interfaces/RulesInterface';
 import searchForRulesFileConfig from './rulesFileConfig/rulesFileConfigUtils';
 import { validateRulesSchema } from './schema/RulesSchema';
 import {
+    attachFileCreationEvents,
     checkIfFolderIsLaunched,
     disposeExistingFileSystemWatchersFromFileSystemWatcherArray,
     generateFileSystemWatcherRules,
@@ -67,35 +68,11 @@ export function activate(context: vscode.ExtensionContext) {
                     fileSystemWatcherArray
                 );
 
-            console.log({ fileSystemWatcherArray });
-
             // create appropriate fileSystem watchers rules and their destinations based on the rules given by the user
             fileSystemWatcherArray = generateFileSystemWatcherRules(rules);
 
-            fileSystemWatcherArray.fileSystemWatchers.map(
-                (fileSystemWatcherArrayElement) => {
-                    fileSystemWatcherArrayElement.fileSystemWatcher.onDidCreate(
-                        (event) => {
-                            const watchedFilePath: string = event.fsPath;
-
-                            const watchedFilePathSplit: string[] =
-                                watchedFilePath.split('\\');
-
-                            if (
-                                watchedFilePathSplit[
-                                    watchedFilePathSplit.length - 2
-                                ] !== fileSystemWatcherArrayElement.destination
-                            ) {
-                                vscode.window.showErrorMessage(
-                                    fileSystemWatcherArrayElement.errorMessage
-                                );
-                            }
-                        }
-                    );
-                }
-            );
-
-            vscode.window.showInformationMessage('Worked');
+            // attach file creation events on all the fileSystemWatchers created
+            attachFileCreationEvents(fileSystemWatcherArray);
         }
     );
 

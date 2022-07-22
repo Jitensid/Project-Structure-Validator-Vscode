@@ -1,26 +1,8 @@
-import * as fs from 'fs';
 import * as vscode from 'vscode';
-import * as YAML from 'yaml';
 import FileSystemWatcherArray from './interfaces/FileSystemWatcherArray';
 import FileSystemWatcherArrayElement from './interfaces/FileSystemWatcherArrayElement';
 import Rules from './interfaces/RulesInterface';
 import SingleRule from './interfaces/SingleRuleInterface';
-
-/**
- * Function to read the data present in a file
- * @param {string} filePath - string value of the path of the file
- * @returns {string} file - contents of the file
- */
-const loadDataFromRulesFile = (filePath: string): string => {
-    // read data of file in string
-    const fileContents: string = fs.readFileSync(filePath, 'utf-8');
-
-    // parse yaml data as string
-    const rulesData: any = YAML.parse(fileContents);
-
-    // return the data extracted from the file
-    return rulesData;
-};
 
 /**
  * Function to check if vscode is launched with a folder or not
@@ -48,8 +30,8 @@ const getWorkspaceFolderPath = (): string => {
 
 /**
  * Function to dispose the existing file system watchers
- * @param {FileSystemWatcherArray} watchers - FileSystemWatcherArray containing list of fileSystemWatcherElement
- * @returns {FileSystemWatcherArray} watchers - FileSystemWatcherArray containing list of fileSystemWatcherElement with disposed fileSystemWatchers
+ * @param {FileSystemWatcherArray} fileSystemWatcherArray - FileSystemWatcherArray containing list of fileSystemWatcherElement
+ * @returns {FileSystemWatcherArray} fileSystemWatcherArray - FileSystemWatcherArray containing list of fileSystemWatcherElement with disposed fileSystemWatchers
  */
 const disposeExistingFileSystemWatchersFromFileSystemWatcherArray = (
     fileSystemWatcherArray: FileSystemWatcherArray
@@ -213,10 +195,47 @@ const generateFileSystemWatcherRules = (rules: Rules) => {
     return fileSystemWatcherArray;
 };
 
+/**
+ *
+ * Function to attach file creation events to fileSystem watchers
+ * @param {FileSystemWatcherArray} fileSystemWatcherArray - FileSystemWatcherArray containing list of fileSystemWatcherElement
+ */
+const attachFileCreationEvents = (
+    fileSystemWatcherArray: FileSystemWatcherArray
+) => {
+    // iterate all the fileSystemWatchers present in the  fileSystemWatcherArray
+    fileSystemWatcherArray.fileSystemWatchers.map(
+        (fileSystemWatcherArrayElement) => {
+            // attach a file creation event on the fileSystemWatcher based on the regex
+            fileSystemWatcherArrayElement.fileSystemWatcher.onDidCreate(
+                (event) => {
+                    // get the path of the newly created file
+                    const watchedFilePath: string = event.fsPath;
+
+                    // split the path into array of strings
+                    const watchedFilePathSplit: string[] =
+                        watchedFilePath.split('\\');
+
+                    // if the parent directory does not matches destination then display an Error Message
+                    if (
+                        watchedFilePathSplit[
+                            watchedFilePathSplit.length - 2
+                        ] !== fileSystemWatcherArrayElement.destination
+                    ) {
+                        vscode.window.showErrorMessage(
+                            fileSystemWatcherArrayElement.errorMessage
+                        );
+                    }
+                }
+            );
+        }
+    );
+};
+
 export {
-    loadDataFromRulesFile,
     disposeExistingFileSystemWatchersFromFileSystemWatcherArray,
     checkIfFolderIsLaunched,
     generateFileSystemWatcherRules,
     getWorkspaceFolderPath,
+    attachFileCreationEvents,
 };
