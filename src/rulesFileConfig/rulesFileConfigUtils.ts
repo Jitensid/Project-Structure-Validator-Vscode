@@ -1,13 +1,13 @@
 import { CosmiconfigResult } from 'cosmiconfig/dist/types';
-import { getWorkspaceFolderPath } from '../utils/utils';
+import * as utils from '../utils/utils';
+import * as constants from '../constants/constants';
 import explorer from './rulesFileConfig';
 import * as vscode from 'vscode';
-import { messages } from '../constants/constants';
 
 const searchForRulesFileConfig = (): [boolean, CosmiconfigResult] => {
     // get the workspaceFolderPath that will be used by the explorer to search
     // for the config
-    const searchConfigFileFrom: string = getWorkspaceFolderPath();
+    const searchConfigFileFrom: string = utils.getWorkspaceFolderPath();
 
     // to check if there is any issue while searching or parsing config
     let errorInConfig: boolean = true;
@@ -27,13 +27,15 @@ const searchForRulesFileConfig = (): [boolean, CosmiconfigResult] => {
         // else display error message to the user
         else {
             vscode.window.showErrorMessage(
-                'No Config found or config is empty'
+                constants.messages.configFileEmptyOrMissing
             );
         }
     } catch (error) {
         // if config is found but there are syntax errors due to which errors are raised
         // while parsing it
-        vscode.window.showErrorMessage(messages.rulesFilesHasSyntaxError);
+        vscode.window.showErrorMessage(
+            constants.messages.rulesFilesHasSyntaxError
+        );
     }
 
     // return error status and the config results
