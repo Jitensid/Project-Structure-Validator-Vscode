@@ -199,6 +199,46 @@ class ValidateProjectStructureCommand {
     };
 
     /**
+     * Function to get meaning full error messages based on rules provided by the user
+     * @param {SingleRule} rule - SingleRule that is parsed from the config
+     * @returns {string} meaningfulErrorMessage - meaningful error when a newly created file violates a specific rule
+     */
+    private getMeaningfulErrorMessage = (rule: SingleRule): string => {
+        // create a meaningful error message when a newly created file violates a specific rule
+        let meaningfulErrorMessage: string = `All ${this.getExtensionsInDesiredFormat(
+            rule
+        )} files `;
+
+        // if startsWith property of the rule is defined
+        if (rule.rule.startsWith !== undefined) {
+            meaningfulErrorMessage = meaningfulErrorMessage.concat(
+                `starting with ${rule.rule.startsWith} `
+            );
+        }
+
+        // if both startsWith and endsWith properties are defined by the user
+        if (
+            rule.rule.startsWith !== undefined &&
+            rule.rule.endsWith !== undefined
+        ) {
+            meaningfulErrorMessage = meaningfulErrorMessage.concat(' and ');
+        }
+
+        // if endsWith property of the rule is defined
+        if (rule.rule.endsWith !== undefined) {
+            meaningfulErrorMessage = meaningfulErrorMessage.concat(
+                `ending with ${rule.rule.endsWith} `
+            );
+        }
+
+        meaningfulErrorMessage = meaningfulErrorMessage.concat(
+            ` should be present inside ${rule.rule.destination} folder`
+        );
+
+        return meaningfulErrorMessage;
+    };
+
+    /**
      *
      * Function to generate FileSystemWatcher from the rules provided by the user
      * @param {Rules} rules - array of filesystem watchers
@@ -232,7 +272,7 @@ class ValidateProjectStructureCommand {
                 {
                     destination: rule.rule.destination,
                     fileSystemWatcher: watcher,
-                    errorMessage: 'errorMessage',
+                    errorMessage: this.getMeaningfulErrorMessage(rule),
                 };
 
             // append the fileSystemWatcherArrayElement
