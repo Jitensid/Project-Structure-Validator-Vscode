@@ -1,4 +1,4 @@
-import FileSystemWatcherArrayElement from './FileSystemWatcherArrayElement';
+import FileSystemWatcherArrayElement from './FileSystemWatcherArrayElementInterface';
 
 interface FileSystemWatcherArray {
     fileSystemWatchers: FileSystemWatcherArrayElement[];

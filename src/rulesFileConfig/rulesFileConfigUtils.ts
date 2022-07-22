@@ -1,5 +1,5 @@
 import { CosmiconfigResult } from 'cosmiconfig/dist/types';
-import { getWorkspaceFolderPath } from '../utils';
+import { getWorkspaceFolderPath } from '../utils/utils';
 import explorer from './rulesFileConfig';
 import * as vscode from 'vscode';
 import { messages } from '../constants/constants';
