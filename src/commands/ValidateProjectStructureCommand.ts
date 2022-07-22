@@ -108,16 +108,8 @@ class ValidateProjectStructureCommand {
 
         // if the user has provided the extensions in array format
         if (Array.isArray(rule.rule.extensions)) {
-            // iterate each extension from the array and concat all the values
-            // and make them comma separated
-            rule.rule.extensions.map((extension) => {
-                extensionsInDesiredFormat = extensionsInDesiredFormat.concat(
-                    `${extension},`
-                );
-            });
-
-            // remove the last `,` character from the string
-            extensionsInDesiredFormat = extensionsInDesiredFormat.slice(0, -1);
+            // reduce the array of strings into a single string
+            extensionsInDesiredFormat = rule.rule.extensions.join(',');
 
             // if string format then take is as provided
         } else if (typeof rule.rule.extensions === 'string') {
@@ -159,6 +151,39 @@ class ValidateProjectStructureCommand {
         }
 
         return getEndsWithInDesiredFormat;
+    };
+
+    /**
+     * Function to extract destination field from the SingleRule and transform it in a meaningful manner
+     * @param {SingleRule} rule - SingleRule that is parsed from the config
+     * @returns {string} destinationInDesiredFormat - string value of the desired destination
+     *
+     *  @example
+     *  if rule.destination === ['assets','image']
+     *  return 'assets/image'
+     *
+     *  @example
+     *  if rule.destination === 'assets'
+     *  return 'assets'
+     *  */
+    private getDestinationInDesiredFormat = (rule: SingleRule): string => {
+        // extensionsInDesiredFormat extracts the extensions value provided by the user
+        // and stores them in the desired manner
+        let destinationInDesiredFormat: string = '';
+
+        // if the user has provided the destination in array format
+        if (Array.isArray(rule.rule.destination)) {
+            // reduce the array of strings into a single string
+            destinationInDesiredFormat = rule.rule.destination
+                .join(',')
+                .replace(/,/g, '/');
+
+            // if string format then take is as provided
+        } else if (typeof rule.rule.destination === 'string') {
+            destinationInDesiredFormat = rule.rule.destination;
+        }
+
+        return destinationInDesiredFormat;
     };
 
     /**
@@ -232,7 +257,9 @@ class ValidateProjectStructureCommand {
         }
 
         meaningfulErrorMessage = meaningfulErrorMessage.concat(
-            ` should be present inside ${rule.rule.destination} folder`
+            ` should be present inside ${this.getDestinationInDesiredFormat(
+                rule
+            )} folder`
         );
 
         return meaningfulErrorMessage;
