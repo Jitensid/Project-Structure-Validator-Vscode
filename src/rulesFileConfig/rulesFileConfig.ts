@@ -6,6 +6,15 @@ const explorer = cosmiconfig.cosmiconfigSync(
     constants.COSMIC_CONFIG_MODULE_NAME,
     {
         cache: false,
+        searchPlaces: [
+            `.${constants.COSMIC_CONFIG_MODULE_NAME}rc.json`,
+            `.${constants.COSMIC_CONFIG_MODULE_NAME}rc.yaml`,
+            `.${constants.COSMIC_CONFIG_MODULE_NAME}rc.yml`,
+            `.${constants.COSMIC_CONFIG_MODULE_NAME}rc.js`,
+            `.${constants.COSMIC_CONFIG_MODULE_NAME}rc.cjs`,
+            `${constants.COSMIC_CONFIG_MODULE_NAME}.config.js`,
+            `${constants.COSMIC_CONFIG_MODULE_NAME}.config.cjs`,
+        ],
     }
 );
 

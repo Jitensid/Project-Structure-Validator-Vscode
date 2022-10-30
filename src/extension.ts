@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     .then((value) => {
     //         if (value.length > 0) {
     //             vscode.window.showInformationMessage('Found Existing Config');
-    //         }
+    //         }5
     //     });
 
     let validateProjectStructure: vscode.Disposable =
