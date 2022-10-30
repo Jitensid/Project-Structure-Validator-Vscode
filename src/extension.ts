@@ -11,16 +11,38 @@ export function activate(context: vscode.ExtensionContext) {
     // Now provide the implementation of the command with registerCommand
     // The commandId parameter must match the command field in package.json
 
-    let validateProjectStructure = vscode.commands.registerCommand(
-        'project-structure-validator.validateProjectStructure',
-        () => {
-            const validateProjectStructureCommand =
-                new ValidateProjectStructureCommand();
-            validateProjectStructureCommand.executeCommand();
-        }
-    );
+    // vscode.window.showInformationMessage('Extension is Activated');
+
+    // vscode.workspace
+    //     .findFiles('**/.structurerc.{json,yaml,yml,js,cjs}')
+    //     .then((value) => {
+    //         if (value.length > 0) {
+    //             vscode.window.showInformationMessage('Found Existing Config');
+    //         }
+    //     });
+
+    let validateProjectStructure: vscode.Disposable =
+        vscode.commands.registerCommand(
+            'project-structure-validator.validateProjectStructure',
+            () => {
+                const validateProjectStructureCommand =
+                    new ValidateProjectStructureCommand();
+                validateProjectStructureCommand.executeCommand();
+            }
+        );
+
+    let generateProjectStructureConfigFile: vscode.Disposable =
+        vscode.commands.registerCommand(
+            'project-structure-validator.generateProjectStructureConfigFile',
+            () => {
+                vscode.window.showInformationMessage(
+                    'Config File Generator Command is Executed'
+                );
+            }
+        );
 
     context.subscriptions.push(validateProjectStructure);
+    context.subscriptions.push(generateProjectStructureConfigFile);
 }
 
 // this method is called when your extension is deactivated

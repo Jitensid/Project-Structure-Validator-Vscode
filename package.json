@@ -3,7 +3,15 @@
     "displayName": "Project Structure Validator",
     "description": "This extension helps you to validate your project structure and informs you about the errors !",
     "version": "0.0.1",
-    "publisher": "Jiten Sidhpura",
+    "publisher": "JitenSidhpura",
+    "author": {
+        "name": "Jiten Sidhpura"
+    },
+    "homepage": "https://github.com/Jitensid/Project-Structure-Validator",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Jitensid/Project-Structure-Validator"
+    },
     "engines": {
         "vscode": "^1.69.0"
     },
@@ -12,7 +20,9 @@
     ],
     "activationEvents": [
         "onCommand:project-structure-validator.validateProjectStructure",
-        "onCommand:project-structure-validator.a"
+        "onCommand:project-structure-validator.generateProjectStructureConfigFile",
+        "workspaceContains:**/.structurerc.{json,yaml,yml,js,cjs}",
+        "workspaceContains:**/.structurerc.config.{js,cjs}"
     ],
     "main": "./dist/extension.js",
     "contributes": {
@@ -23,8 +33,8 @@
                 "category": "Project Structure Validator"
             },
             {
-                "command": "project-structure-validator.a",
-                "title": "Validate YAML",
+                "command": "project-structure-validator.generateProjectStructureConfigFile",
+                "title": "Generate Project Structure Config File",
                 "category": "Project Structure Validator"
             }
         ]

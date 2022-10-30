@@ -1,9 +1,11 @@
+.husky/**
 .vscode/**
 .vscode-test/**
 out/**
 node_modules/**
 src/**
 .gitignore
+.prettierrc.json
 .yarnrc
 webpack.config.js
 vsc-extension-quickstart.md
