@@ -66,6 +66,11 @@ class ValidateProjectStructureCommand {
         this.fileSystemWatcherArray = this.attachFileCreationEvents(
             this.fileSystemWatcherArray
         );
+
+        // check files present in the workspace whether they rules are followed or not
+        this.validateExistingFilesInsideWorkspaceFolder(
+            this.fileSystemWatcherArray
+        );
     }
 
     /**
@@ -187,13 +192,11 @@ class ValidateProjectStructureCommand {
     };
 
     /**
-     * Function to generate the RelativePattern that will be used by fileSystemWatcher to look out for files based on rules provided by the user
+     * Function to generate the relativePatternRegex that will be used by fileSystemWatcher to look out for files based on rules provided by the user
      * @param {SingleRule} rule - SingleRule that is parsed from the config
-     * @returns {vscode.RelativePattern} relativePatternOfFileSystemWatcher - RelativePattern of the desired FileSystemWatcher
+     * @returns {string} relativePatternRegex - relativePatternRegex of the file based on file extension, startsWith and endsWith parameters
      */
-    private generateFileSystemWatcherRelativePattern = (
-        rule: SingleRule
-    ): vscode.RelativePattern => {
+    private generateRelativePatternRegex = (rule: SingleRule) => {
         // extract extensions in the desired format
         const extensionsExtractedInDesiredFormat: string =
             this.getExtensionsInDesiredFormat(rule);
@@ -208,7 +211,23 @@ class ValidateProjectStructureCommand {
 
         // create the regex for the Relative Pattern
         // based on the values of extensions, startsWith, endsWith
-        let relativePatternRegex: string = `**/${startsWithExtractedInDesiredFormat}*${endsWithExtractedInDesiredFormat}.{${extensionsExtractedInDesiredFormat}}`;
+        const relativePatternRegex: string = `**/${startsWithExtractedInDesiredFormat}*${endsWithExtractedInDesiredFormat}.{${extensionsExtractedInDesiredFormat}}`;
+
+        return relativePatternRegex;
+    };
+
+    /**
+     * Function to generate the RelativePattern that will be used by fileSystemWatcher to look out for files based on rules provided by the user
+     * @param {SingleRule} rule - SingleRule that is parsed from the config
+     * @returns {vscode.RelativePattern} relativePatternOfFileSystemWatcher - RelativePattern of the desired FileSystemWatcher
+     */
+    private generateFileSystemWatcherRelativePattern = (
+        rule: SingleRule
+    ): vscode.RelativePattern => {
+        // create the regex for the Relative Pattern
+        // based on the values of extensions, startsWith, endsWith
+        const relativePatternRegex: string =
+            this.generateRelativePatternRegex(rule);
 
         // get the path of the folder where vscode is launched
         const workSpaceFolderPath: string = utils.getWorkspaceFolderPath();
@@ -297,7 +316,7 @@ class ValidateProjectStructureCommand {
             // create an element with required properties
             const fileSystemWatcherArrayElement: FileSystemWatcherArrayElement =
                 {
-                    destination: rule.rule.destination,
+                    rule: rule,
                     fileSystemWatcher: watcher,
                     errorMessage: this.getMeaningfulErrorMessage(rule),
                 };
@@ -367,16 +386,21 @@ class ValidateProjectStructureCommand {
         let fileSystemWatcherArrayElementDestinationPaths: string[] = [];
 
         // if the user has provided destination in the rule as string then simply assign it as 1st element
-        if (typeof fileSystemWatcherArrayElement.destination === 'string') {
+        if (
+            typeof fileSystemWatcherArrayElement.rule.rule.destination ===
+            'string'
+        ) {
             fileSystemWatcherArrayElementDestinationPaths.push(
-                fileSystemWatcherArrayElement.destination
+                fileSystemWatcherArrayElement.rule.rule.destination
             );
         }
 
         // if the user has provided destination in the rule as array then simply assign it as array
-        else if (Array.isArray(fileSystemWatcherArrayElement.destination)) {
+        else if (
+            Array.isArray(fileSystemWatcherArrayElement.rule.rule.destination)
+        ) {
             fileSystemWatcherArrayElementDestinationPaths =
-                fileSystemWatcherArrayElement.destination.reverse();
+                fileSystemWatcherArrayElement.rule.rule.destination.reverse();
         }
 
         // folder index of the newly file created
@@ -396,7 +420,7 @@ class ValidateProjectStructureCommand {
             if (folderName === watchedFilePathSplit[newFilePathFolderIndex]) {
                 newFilePathFolderIndex += 1;
             }
-            // if mismatch exists then return error
+            // if mismatch then return error
             else {
                 return ruleViolated;
             }
@@ -406,6 +430,43 @@ class ValidateProjectStructureCommand {
         ruleViolated = false;
 
         return ruleViolated;
+    };
+
+    /**
+     * Function to validate already opened files that are matching the rules provided by the user
+     * @param {FileSystemWatcherArray} fileSystemWatcherArray - FileSystemWatcherArray containing list of fileSystemWatcherElement
+     */
+    private validateExistingFilesInsideWorkspaceFolder = (
+        fileSystemWatcherArray: FileSystemWatcherArray
+    ) => {
+        for (let fileSystemWatcherArrayElement of fileSystemWatcherArray.fileSystemWatchers) {
+            // get the relativePatternRegex based on the rule provided by the config
+            const relativePatternRegex: string =
+                this.generateRelativePatternRegex(
+                    fileSystemWatcherArrayElement.rule
+                );
+
+            // for all files matching the fileRelativePattern now validate their locations
+            vscode.workspace
+                .findFiles(relativePatternRegex)
+                .then((matchedFiles) => {
+                    // iterate all files being matched by the rule
+                    for (let matchedFile of matchedFiles) {
+                        // check whether the file present in the workspace is following the rule or not
+                        const ruleViolated: boolean = this.validateFile(
+                            fileSystemWatcherArrayElement,
+                            matchedFile.fsPath
+                        );
+
+                        // if rule is violated then display an meaningful error message to the user
+                        if (ruleViolated) {
+                            vscode.window.showErrorMessage(
+                                fileSystemWatcherArrayElement.errorMessage
+                            );
+                        }
+                    }
+                });
+        }
     };
 }
 
