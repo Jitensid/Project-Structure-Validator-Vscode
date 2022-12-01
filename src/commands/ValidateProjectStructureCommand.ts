@@ -67,7 +67,7 @@ class ValidateProjectStructureCommand {
             this.fileSystemWatcherArray
         );
 
-        // check files present in the workspace whether they rules are followed or not
+        // check files present in the workspace whether the rules are followed or not
         this.validateExistingFilesInsideWorkspaceFolder(
             this.fileSystemWatcherArray
         );
@@ -338,7 +338,7 @@ class ValidateProjectStructureCommand {
     private attachFileCreationEvents = (
         fileSystemWatcherArray: FileSystemWatcherArray
     ): FileSystemWatcherArray => {
-        // iterate all the fileSystemWatchers present in the  fileSystemWatcherArray
+        // iterate all the fileSystemWatchers present in the fileSystemWatcherArray
         fileSystemWatcherArray.fileSystemWatchers.map(
             (fileSystemWatcherArrayElement) => {
                 // attach a file creation event on the fileSystemWatcher based on the regex
@@ -352,6 +352,10 @@ class ValidateProjectStructureCommand {
 
                         // if rule is violated then display an meaningful error message to the user
                         if (ruleViolated) {
+                            vscode.window.showErrorMessage(
+                                vscode.workspace.asRelativePath(event.fsPath)
+                            );
+
                             vscode.window.showErrorMessage(
                                 fileSystemWatcherArrayElement.errorMessage
                             );
