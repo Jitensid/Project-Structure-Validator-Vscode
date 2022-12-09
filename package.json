@@ -30,14 +30,59 @@
             {
                 "command": "project-structure-validator.validateProjectStructure",
                 "title": "Validate Project Structure",
-                "category": "Project Structure Validator"
+                "category": "Project Structure Validator",
+                "icon": "resources/react-logo.svg"
             },
             {
                 "command": "project-structure-validator.generateProjectStructureConfigFile",
                 "title": "Generate Project Structure Config File",
-                "category": "Project Structure Validator"
+                "category": "Project Structure Validator",
+                "icon": "resources/react-logo.svg"
             }
-        ]
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "project-structure-validator",
+                    "title": "Project Structure Validator",
+                    "icon": "resources/react-logo.svg"
+                }
+            ]
+        },
+        "views": {
+            "project-structure-validator": [
+                {
+                    "id": "extensionView",
+                    "name": "Extension View"
+                }
+            ]
+        },
+        "viewsWelcome": [
+            {
+                "view": "extensionView",
+                "contents": "In order to use features for this extension please launch with a folder.\n[Open Folder](command:vscode.openFolder)",
+                "when": "workbenchState == empty"
+            },
+            {
+                "view": "extensionView",
+                "contents": "Structure Config is not present.\n [Generate Project Structure Config](command:project-structure-validator.generateProjectStructureConfigFile)",
+                "when": "workbenchState == folder && resourceFilename != .structurerc.json"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "project-structure-validator.generateProjectStructureConfigFile",
+                    "when": "view == extensionView && workbenchState == folder",
+                    "group": "navigation"
+                },
+                {
+                    "command": "project-structure-validator.validateProjectStructure",
+                    "when": "view == extensionView && workbenchState == folder",
+                    "group": "navigation"
+                }
+            ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run package",

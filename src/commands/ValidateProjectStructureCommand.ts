@@ -350,7 +350,7 @@ class ValidateProjectStructureCommand {
                             event.fsPath
                         );
 
-                        // if rule is violated then display an meaningful error message to the user
+                        // if rule is violated then display a meaningful error message to the user
                         if (ruleViolated) {
                             vscode.window.showErrorMessage(
                                 vscode.workspace.asRelativePath(event.fsPath)
@@ -369,7 +369,7 @@ class ValidateProjectStructureCommand {
     };
 
     /**
-     * Function to validate newly created file by validating the file system path with it's desired destination
+     * Function to validate whether the newly created file is validating the file system path with it's desired destination
      * @param {FileSystemWatcherArrayElement} fileSystemWatcherArrayElement - fileSystemWatcherArrayElement containing information about the user
      * @param {string} newFilePath - path of the newly created file that matched the fileSystem watcher's regex pattern
      * @returns {boolean} ruleViolated - indicates whether the rule is violated or not
@@ -462,10 +462,11 @@ class ValidateProjectStructureCommand {
                             matchedFile.fsPath
                         );
 
-                        // if rule is violated then display an meaningful error message to the user
+                        // if rule is violated then display a meaningful error message to the user
                         if (ruleViolated) {
                             vscode.window.showErrorMessage(
-                                fileSystemWatcherArrayElement.errorMessage
+                                vscode.workspace.asRelativePath(matchedFile) +
+                                    fileSystemWatcherArrayElement.errorMessage
                             );
                         }
                     }
