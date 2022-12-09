@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import * as constants from '../constants/constants';
 import * as utils from '../utils/utils';
 import searchForRulesFileConfig from '../rulesFileConfig/rulesFileConfigUtils';
@@ -13,9 +14,15 @@ class ValidateProjectStructureCommand {
     // array to store filesystem watcher elements
     private fileSystemWatcherArray: FileSystemWatcherArray;
 
+    // stores the path of the cosmiConfig file path from which the fileSystemWatcherArray is created
+    private cosmiConfigFilePath: string | undefined;
+
     constructor() {
         // initialize the fileSystemWatcherArray with fileSystemWatchers property as empty array
         this.fileSystemWatcherArray = { fileSystemWatchers: [] };
+
+        // when the path of the cosmiConfig file is not yet known then set it to undefined
+        this.cosmiConfigFilePath = undefined;
     }
 
     // main method of the command
@@ -48,6 +55,9 @@ class ValidateProjectStructureCommand {
             );
             return;
         }
+
+        // save the path for the cosmiConfig for later use
+        this.cosmiConfigFilePath = searchForRulesFileConfigResults[1]?.filepath;
 
         // get the rules from config object
         const rules: Rules = searchForRulesFileConfigResults[1]?.config;
@@ -378,6 +388,18 @@ class ValidateProjectStructureCommand {
         fileSystemWatcherArrayElement: FileSystemWatcherArrayElement,
         newFilePath: string
     ): boolean => {
+      
+        // if the cosmiConfig file is deleted after the command generated the filesystemwatchers then dispose them
+        if (!fs.existsSync(this.cosmiConfigFilePath!)) {
+            this.fileSystemWatcherArray =
+                this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray(
+                    this.fileSystemWatcherArray
+                );
+            
+            // since fileSystemWatcherArray is empty so there will be no error while validating any file
+            return false;
+        }
+
         let ruleViolated: boolean = true;
 
         // split the path into array of strings and store the path in reverse order
