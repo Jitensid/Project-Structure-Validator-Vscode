@@ -17,12 +17,18 @@ class ValidateProjectStructureCommand {
     // stores the path of the cosmiConfig file path from which the fileSystemWatcherArray is created
     private cosmiConfigFilePath: string | undefined;
 
+    // fileDeleteEvent so that when cosmiConfig file is deleted by the user then cleanup operation can begin
+    private fileDeleteEventForCosmiConfigFile: vscode.Disposable | undefined;
+
     constructor() {
         // initialize the fileSystemWatcherArray with fileSystemWatchers property as empty array
         this.fileSystemWatcherArray = { fileSystemWatchers: [] };
 
         // when the path of the cosmiConfig file is not yet known then set it to undefined
         this.cosmiConfigFilePath = undefined;
+
+        // when the cosmiConfig file is not set so the event is initialized as undefined
+        this.fileDeleteEventForCosmiConfigFile = undefined;
     }
 
     // main method of the command
@@ -53,11 +59,44 @@ class ValidateProjectStructureCommand {
             vscode.window.showErrorMessage(
                 constants.messages.doesNotFollowSchemaError
             );
+
             return;
         }
 
         // save the path for the cosmiConfig for later use
-        this.cosmiConfigFilePath = searchForRulesFileConfigResults[1]?.filepath;
+        this.cosmiConfigFilePath =
+            searchForRulesFileConfigResults[1]?.filepath!;
+
+        // attach a fileDeleteEvent once the config is successfully loaded
+        this.fileDeleteEventForCosmiConfigFile =
+            vscode.workspace.onDidDeleteFiles((event) => {
+                // iterate deleted files reported from the event
+                for (const deletedFile of event.files) {
+                    // get the actual deleted file path
+                    const actualDeletedFilePath: string = deletedFile
+                        .toString(true)
+                        .slice()
+                        .replace('file://', '');
+
+                    if (
+                        actualDeletedFilePath ===
+                        this.cosmiConfigFilePath?.toString()
+                    ) {
+                        vscode.window.showWarningMessage(
+                            'Config file has been deleted!'
+                        );
+
+                        // dispose the existing fileSystemWatchers now since the config file is deleted
+                        this.fileSystemWatcherArray =
+                            this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray(
+                                this.fileSystemWatcherArray
+                            );
+
+                        // dispose the fileDeleteEvent since it is now no longer needed
+                        this.fileDeleteEventForCosmiConfigFile!.dispose();
+                    }
+                }
+            });
 
         // get the rules from config object
         const rules: Rules = searchForRulesFileConfigResults[1]?.config;
@@ -388,18 +427,6 @@ class ValidateProjectStructureCommand {
         fileSystemWatcherArrayElement: FileSystemWatcherArrayElement,
         newFilePath: string
     ): boolean => {
-      
-        // if the cosmiConfig file is deleted after the command generated the filesystemwatchers then dispose them
-        if (!fs.existsSync(this.cosmiConfigFilePath!)) {
-            this.fileSystemWatcherArray =
-                this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray(
-                    this.fileSystemWatcherArray
-                );
-            
-            // since fileSystemWatcherArray is empty so there will be no error while validating any file
-            return false;
-        }
-
         let ruleViolated: boolean = true;
 
         // split the path into array of strings and store the path in reverse order
