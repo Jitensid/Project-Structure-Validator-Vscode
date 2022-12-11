@@ -64,7 +64,7 @@
             },
             {
                 "view": "extensionView",
-                "contents": "Structure Config is not present.\n [Generate Project Structure Config](command:project-structure-validator.generateProjectStructureConfigFile)",
+                "contents": "Structure Config is not present or either invalid.\n [Generate Project Structure Config](command:project-structure-validator.generateProjectStructureConfigFile)",
                 "when": "workbenchState == folder && !project-structure-validator.hasConfigFile"
             }
         ],

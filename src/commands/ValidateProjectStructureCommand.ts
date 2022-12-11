@@ -67,6 +67,13 @@ class ValidateProjectStructureCommand {
         this.cosmiConfigFilePath =
             searchForRulesFileConfigResults[1]?.filepath!;
 
+        // set the context to true
+        vscode.commands.executeCommand(
+            'setContext',
+            'project-structure-validator.hasConfigFile',
+            true
+        );
+
         // attach a fileDeleteEvent once the config is successfully loaded
         this.fileDeleteEventForCosmiConfigFile =
             vscode.workspace.onDidDeleteFiles((event) => {
@@ -84,6 +91,13 @@ class ValidateProjectStructureCommand {
                     ) {
                         vscode.window.showWarningMessage(
                             'Config file has been deleted!'
+                        );
+
+                        // set the context to false
+                        vscode.commands.executeCommand(
+                            'setContext',
+                            'project-structure-validator.hasConfigFile',
+                            false
                         );
 
                         // dispose the existing fileSystemWatchers now since the config file is deleted
