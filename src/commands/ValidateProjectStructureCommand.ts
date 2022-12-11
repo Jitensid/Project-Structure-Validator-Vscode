@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as constants from '../constants/constants';
 import * as utils from '../utils/utils';
 import searchForRulesFileConfig from '../rulesFileConfig/rulesFileConfigUtils';
