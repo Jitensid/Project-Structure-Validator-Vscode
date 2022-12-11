@@ -4,6 +4,7 @@ import * as utils from '../utils/utils';
 import searchForRulesFileConfig from '../rulesFileConfig/rulesFileConfigUtils';
 import { CosmiconfigResult } from 'cosmiconfig/dist/types';
 import { validateRulesSchema } from '../schema/RulesSchema';
+import ViolatedFilesTreeProvider from '../provider/ViolatedFilesTreeProvider';
 import SingleRule from '../interfaces/SingleRuleInterface';
 import Rules from '../interfaces/RulesInterface';
 import FileSystemWatcherArray from '../interfaces/FileSystemWatcherArrayInterface';
@@ -19,6 +20,9 @@ class ValidateProjectStructureCommand {
     // fileDeleteEvent so that when cosmiConfig file is deleted by the user then cleanup operation can begin
     private fileDeleteEventForCosmiConfigFile: vscode.Disposable | undefined;
 
+    // treeView to show files that are violating project structure rules
+    private violatedFilesTreeView: vscode.Disposable | undefined;
+
     constructor() {
         // initialize the fileSystemWatcherArray with fileSystemWatchers property as empty array
         this.fileSystemWatcherArray = { fileSystemWatchers: [] };
@@ -28,6 +32,8 @@ class ValidateProjectStructureCommand {
 
         // when the cosmiConfig file is not set so the event is initialized as undefined
         this.fileDeleteEventForCosmiConfigFile = undefined;
+
+        this.violatedFilesTreeView = undefined;
     }
 
     // main method of the command
@@ -107,9 +113,16 @@ class ValidateProjectStructureCommand {
 
                         // dispose the fileDeleteEvent since it is now no longer needed
                         this.fileDeleteEventForCosmiConfigFile!.dispose();
+
+                        // dispose the current tree view
+                        this.violatedFilesTreeView?.dispose();
                     }
                 }
             });
+
+        this.violatedFilesTreeView = vscode.window.createTreeView('treeView', {
+            treeDataProvider: new ViolatedFilesTreeProvider(),
+        });
 
         // get the rules from config object
         const rules: Rules = searchForRulesFileConfigResults[1]?.config;

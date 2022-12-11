@@ -52,7 +52,13 @@
             "project-structure-validator": [
                 {
                     "id": "extensionView",
-                    "name": "Extension View"
+                    "name": "Extension View",
+                    "when": "!project-structure-validator.hasConfigFile"
+                },
+                {
+                    "id": "treeView",
+                    "name": "Tree View",
+                    "when": "project-structure-validator.hasConfigFile"
                 }
             ]
         },
@@ -72,12 +78,22 @@
             "view/title": [
                 {
                     "command": "project-structure-validator.generateProjectStructureConfigFile",
-                    "when": "view == extensionView && workbenchState == folder",
+                    "when": "workbenchState == folder && view == treeView",
                     "group": "navigation"
                 },
                 {
                     "command": "project-structure-validator.validateProjectStructure",
-                    "when": "view == extensionView && workbenchState == folder",
+                    "when": "workbenchState == folder && view == treeView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "project-structure-validator.generateProjectStructureConfigFile",
+                    "when": "workbenchState == folder && view == extensionView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "project-structure-validator.validateProjectStructure",
+                    "when": "workbenchState == folder && view == extensionView",
                     "group": "navigation"
                 }
             ]
