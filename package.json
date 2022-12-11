@@ -21,8 +21,7 @@
     "activationEvents": [
         "onCommand:project-structure-validator.validateProjectStructure",
         "onCommand:project-structure-validator.generateProjectStructureConfigFile",
-        "workspaceContains:**/.structurerc.{json,yaml,yml,js,cjs}",
-        "workspaceContains:**/.structurerc.config.{js,cjs}"
+        "workspaceContains:**/.structurerc.{json,yaml,yml,js,cjs}"
     ],
     "main": "./dist/extension.js",
     "contributes": {
@@ -66,7 +65,7 @@
             {
                 "view": "extensionView",
                 "contents": "Structure Config is not present.\n [Generate Project Structure Config](command:project-structure-validator.generateProjectStructureConfigFile)",
-                "when": "workbenchState == folder && resourceFilename != .structurerc.json"
+                "when": "workbenchState == folder && !project-structure-validator.hasConfigFile"
             }
         ],
         "menus": {
