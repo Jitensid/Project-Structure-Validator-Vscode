@@ -56,8 +56,8 @@
                     "when": "!project-structure-validator.hasConfigFile"
                 },
                 {
-                    "id": "treeView",
-                    "name": "Tree View",
+                    "id": "violatedFilesTreeView",
+                    "name": "Violated Files Tree View",
                     "when": "project-structure-validator.hasConfigFile"
                 }
             ]
@@ -78,12 +78,12 @@
             "view/title": [
                 {
                     "command": "project-structure-validator.generateProjectStructureConfigFile",
-                    "when": "workbenchState == folder && view == treeView",
+                    "when": "workbenchState == folder && view == violatedFilesTreeView",
                     "group": "navigation"
                 },
                 {
                     "command": "project-structure-validator.validateProjectStructure",
-                    "when": "workbenchState == folder && view == treeView",
+                    "when": "workbenchState == folder && view == violatedFilesTreeView",
                     "group": "navigation"
                 },
                 {
