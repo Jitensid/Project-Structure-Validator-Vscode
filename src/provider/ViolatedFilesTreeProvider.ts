@@ -1,50 +1,63 @@
 import * as vscode from 'vscode';
+import ViolatedFilesTreeItem from './ViolatedFilesTreeItem';
 
-class ViolatedFilesTreeProvider implements vscode.TreeDataProvider<any> {
-    data: TreeItem[];
+class ViolatedFilesTreeProvider
+    implements vscode.TreeDataProvider<ViolatedFilesTreeItem>
+{
+    rootViolatedFilesTreeItem: ViolatedFilesTreeItem | undefined;
 
-    constructor() {
-        this.data = [
-            new TreeItem('Violated Files', [
-                new TreeItem('Ford', [new TreeItem('Fiesta')]),
-                new TreeItem('BMW', [new TreeItem('X5')]),
-            ]),
-        ];
+    setRootViolatedFilesTreeItem(
+        violatedFilesTreeItem: ViolatedFilesTreeItem
+    ): void {
+        this.rootViolatedFilesTreeItem = violatedFilesTreeItem;
     }
 
-    onDidChangeTreeData?: vscode.Event<any> | undefined;
-    getTreeItem(element: any): vscode.TreeItem | Thenable<vscode.TreeItem> {
+    getRootViolatedFilesTreeItem(): ViolatedFilesTreeItem | undefined {
+        return this.rootViolatedFilesTreeItem;
+    }
+
+    private _onDidChangeTreeData: vscode.EventEmitter<
+        ViolatedFilesTreeItem | undefined | null | void
+    > = new vscode.EventEmitter<
+        ViolatedFilesTreeItem | undefined | null | void
+    >();
+
+    readonly onDidChangeTreeData: vscode.Event<
+        ViolatedFilesTreeItem | undefined | null | void
+    > = this._onDidChangeTreeData.event;
+
+    refresh(): void {
+        this._onDidChangeTreeData.fire();
+    }
+
+    public addViolatedFilesTreeItem(): void {
+        console.log('Inside the method');
+
+        const x = new ViolatedFilesTreeItem('New Node');
+        this.getRootViolatedFilesTreeItem()!.children.push(x);
+        this.refresh();
+
+        console.log('Outside the method');
+    }
+
+    getTreeItem(
+        element: ViolatedFilesTreeItem
+    ): vscode.TreeItem | Thenable<vscode.TreeItem> {
         return element;
     }
-    getChildren(element?: any): vscode.ProviderResult<any[]> {
-        if (element === undefined) {
-            return this.data;
+    getChildren(
+        element?: ViolatedFilesTreeItem | undefined
+    ): vscode.ProviderResult<ViolatedFilesTreeItem[]> {
+        const rootViolatedFilesTreeItem = new ViolatedFilesTreeItem(
+            'Violated Files'
+        );
+
+        this.setRootViolatedFilesTreeItem(rootViolatedFilesTreeItem);
+
+        if (!element) {
+            return [rootViolatedFilesTreeItem];
         }
         return element.children;
-    }
-    getParent?(element: any) {
-        throw new Error('Method not implemented.');
-    }
-    resolveTreeItem?(
-        item: vscode.TreeItem,
-        element: any,
-        token: vscode.CancellationToken
-    ): vscode.ProviderResult<vscode.TreeItem> {
-        throw new Error('Method not implemented.');
-    }
-}
-
-class TreeItem extends vscode.TreeItem {
-    children: TreeItem[] | undefined;
-
-    constructor(label: string, children?: TreeItem[]) {
-        super(
-            label,
-            children === undefined
-                ? vscode.TreeItemCollapsibleState.None
-                : vscode.TreeItemCollapsibleState.Expanded
-        );
-        this.children = children;
     }
 }
 

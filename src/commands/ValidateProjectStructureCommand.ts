@@ -9,6 +9,7 @@ import SingleRule from '../interfaces/SingleRuleInterface';
 import Rules from '../interfaces/RulesInterface';
 import FileSystemWatcherArray from '../interfaces/FileSystemWatcherArrayInterface';
 import FileSystemWatcherArrayElement from '../interfaces/FileSystemWatcherArrayElementInterface';
+import ViolatedFilesTreeItem from '../provider/ViolatedFilesTreeItem';
 
 class ValidateProjectStructureCommand {
     // array to store filesystem watcher elements
@@ -23,6 +24,9 @@ class ValidateProjectStructureCommand {
     // treeView to show files that are violating project structure rules
     private violatedFilesTreeView: vscode.Disposable | undefined;
 
+    // treeDataProvider so that nodes can be added or removed
+    private violatedFilesTreeProvider: ViolatedFilesTreeProvider | undefined;
+
     constructor() {
         // initialize the fileSystemWatcherArray with fileSystemWatchers property as empty array
         this.fileSystemWatcherArray = { fileSystemWatchers: [] };
@@ -34,6 +38,8 @@ class ValidateProjectStructureCommand {
         this.fileDeleteEventForCosmiConfigFile = undefined;
 
         this.violatedFilesTreeView = undefined;
+
+        this.violatedFilesTreeProvider = undefined;
     }
 
     // main method of the command
@@ -120,9 +126,14 @@ class ValidateProjectStructureCommand {
                 }
             });
 
-        this.violatedFilesTreeView = vscode.window.createTreeView('treeView', {
-            treeDataProvider: new ViolatedFilesTreeProvider(),
-        });
+        this.violatedFilesTreeProvider = new ViolatedFilesTreeProvider();
+
+        this.violatedFilesTreeView = vscode.window.createTreeView(
+            'violatedFilesTreeView',
+            {
+                treeDataProvider: this.violatedFilesTreeProvider,
+            }
+        );
 
         // get the rules from config object
         const rules: Rules = searchForRulesFileConfigResults[1]?.config;
@@ -434,6 +445,12 @@ class ValidateProjectStructureCommand {
                             vscode.window.showErrorMessage(
                                 fileSystemWatcherArrayElement.errorMessage
                             );
+
+                            // add a new node
+                            this.violatedFilesTreeProvider!.addViolatedFilesTreeItem();
+
+                            // refresh the tree
+                            this.violatedFilesTreeProvider?.refresh();
                         }
                     }
                 );
