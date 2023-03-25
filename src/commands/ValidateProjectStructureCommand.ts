@@ -18,7 +18,8 @@ class ValidateProjectStructureCommand {
     private cosmiConfigFilePath: string | undefined;
 
     // fileDeleteEvent so that when cosmiConfig file is deleted by the user then cleanup operation can begin
-    private fileDeleteEventForCosmiConfigFile: vscode.Disposable | undefined;
+    // and to update the tree view if a violated File is deleted by the user
+    private fileDeleteEvent: vscode.Disposable | undefined;
 
     // treeView to show files that are violating project structure rules
     private violatedFilesTreeView: vscode.Disposable | undefined;
@@ -34,10 +35,12 @@ class ValidateProjectStructureCommand {
         this.cosmiConfigFilePath = undefined;
 
         // when the cosmiConfig file is not set so the event is initialized as undefined
-        this.fileDeleteEventForCosmiConfigFile = undefined;
+        this.fileDeleteEvent = undefined;
 
+        // when the violatedFilesTreeView is not yet created then it is initialized as undefined
         this.violatedFilesTreeView = undefined;
 
+        // when the violatedFilesTreeProvider is not yet registered then it is initialized as undefined
         this.violatedFilesTreeProvider = undefined;
     }
 
@@ -85,45 +88,49 @@ class ValidateProjectStructureCommand {
         );
 
         // attach a fileDeleteEvent once the config is successfully loaded
-        this.fileDeleteEventForCosmiConfigFile =
-            vscode.workspace.onDidDeleteFiles((event) => {
-                // iterate deleted files reported from the event
-                for (const deletedFile of event.files) {
-                    // get the actual deleted file path
-                    const actualDeletedFilePath: string = deletedFile
-                        .toString(true)
-                        .slice()
-                        .replace('file://', '');
+        this.fileDeleteEvent = vscode.workspace.onDidDeleteFiles((event) => {
+            // iterate deleted files reported from the event
+            for (const deletedFile of event.files) {
+                // get the actual deleted file path
+                const actualDeletedFilePath: string = deletedFile
+                    .toString(true)
+                    .slice()
+                    .replace('file://', '');
 
-                    if (
-                        actualDeletedFilePath ===
-                        this.cosmiConfigFilePath?.toString()
-                    ) {
-                        vscode.window.showWarningMessage(
-                            'Config file has been deleted!'
+                if (
+                    actualDeletedFilePath ===
+                    this.cosmiConfigFilePath?.toString()
+                ) {
+                    vscode.window.showWarningMessage(
+                        'Config file has been deleted!'
+                    );
+
+                    // set the context to false
+                    vscode.commands.executeCommand(
+                        'setContext',
+                        'project-structure-validator.hasConfigFile',
+                        false
+                    );
+
+                    // dispose the existing fileSystemWatchers now since the config file is deleted
+                    this.fileSystemWatcherArray =
+                        this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray(
+                            this.fileSystemWatcherArray
                         );
 
-                        // set the context to false
-                        vscode.commands.executeCommand(
-                            'setContext',
-                            'project-structure-validator.hasConfigFile',
-                            false
-                        );
+                    // dispose the fileDeleteEvent since it is now no longer needed
+                    this.fileDeleteEvent!.dispose();
 
-                        // dispose the existing fileSystemWatchers now since the config file is deleted
-                        this.fileSystemWatcherArray =
-                            this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray(
-                                this.fileSystemWatcherArray
-                            );
-
-                        // dispose the fileDeleteEvent since it is now no longer needed
-                        this.fileDeleteEventForCosmiConfigFile!.dispose();
-
-                        // dispose the current tree view
-                        this.violatedFilesTreeView?.dispose();
-                    }
+                    // dispose the current tree view
+                    this.violatedFilesTreeView?.dispose();
+                } else {
+                    // remove the node from the TreeView if present because the violated file is deleted
+                    this.violatedFilesTreeProvider?.removeViolatedFilesTreeItemIfExists(
+                        actualDeletedFilePath
+                    );
                 }
-            });
+            }
+        });
 
         this.violatedFilesTreeProvider = new ViolatedFilesTreeProvider();
 

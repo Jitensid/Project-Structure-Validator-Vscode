@@ -30,20 +30,40 @@ class ViolatedFilesTreeProvider
             fileFsPath
         );
 
+        // attach `vscode.open` command to open the file when node is clicked
         newViolatedFilesTreeItem.command = {
             title: path.basename(fileFsPath),
             command: 'vscode.open',
             arguments: [fileFsPath],
         };
 
+        // add the new node as child to the root node
         this.rootViolatedFilesTreeItem.children.push(newViolatedFilesTreeItem);
 
+        // refresh the contents of the TreeView
         this._onDidChangeTreeData.fire();
     }
 
-    public removeViolatedFilesTreeItem(): void {
-        this.rootViolatedFilesTreeItem.children.pop();
-        this._onDidChangeTreeData.fire();
+    public removeViolatedFilesTreeItemIfExists(fileFsPath: string): void {
+        // remove the node from the tree whose file path matches with the deleted file path
+        const newRootViolatedFilesTreeItemChildren =
+            this.rootViolatedFilesTreeItem.children.filter(
+                (rootViolatedFilesTreeItemNode) => {
+                    rootViolatedFilesTreeItemNode.filePath !== fileFsPath;
+                }
+            );
+
+        // update the tree only when a file whose node is present in the tree is deleted
+        if (
+            newRootViolatedFilesTreeItemChildren.length !==
+            this.rootViolatedFilesTreeItem.children.length
+        ) {
+            // update the children of the Root Node in the TreeView
+            this.rootViolatedFilesTreeItem.children =
+                newRootViolatedFilesTreeItemChildren;
+            // refresh the contents of the TreeView
+            this._onDidChangeTreeData.fire();
+        }
     }
 
     getTreeItem(
