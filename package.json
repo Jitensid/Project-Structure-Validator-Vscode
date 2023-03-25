@@ -30,13 +30,13 @@
                 "command": "project-structure-validator.validateProjectStructure",
                 "title": "Validate Project Structure",
                 "category": "Project Structure Validator",
-                "icon": "resources/react-logo.svg"
+                "icon": "$(refresh)"
             },
             {
                 "command": "project-structure-validator.generateProjectStructureConfigFile",
                 "title": "Generate Project Structure Config File",
                 "category": "Project Structure Validator",
-                "icon": "resources/react-logo.svg"
+                "icon": "$(new-file)"
             }
         ],
         "viewsContainers": {
@@ -44,7 +44,7 @@
                 {
                     "id": "project-structure-validator",
                     "title": "Project Structure Validator",
-                    "icon": "resources/react-logo.svg"
+                    "icon": "$(file-submodule)"
                 }
             ]
         },
