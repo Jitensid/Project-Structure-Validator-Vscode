@@ -19,7 +19,10 @@ class ViolatedFilesTreeProvider
     > = this._onDidChangeTreeData.event;
 
     public addViolatedFilesTreeItem(label: string): void {
-        const newViolatedFilesTreeItem = new ViolatedFilesTreeItem(label);
+        const newViolatedFilesTreeItem = new ViolatedFilesTreeItem(
+            label,
+            false
+        );
 
         this.rootViolatedFilesTreeItem.children.push(newViolatedFilesTreeItem);
 
