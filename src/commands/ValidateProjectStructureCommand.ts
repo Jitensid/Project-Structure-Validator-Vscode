@@ -450,7 +450,6 @@ class ValidateProjectStructureCommand {
                             this.violatedFilesTreeProvider!.addViolatedFilesTreeItem(
                                 vscode.workspace.asRelativePath(event.fsPath)
                             );
-
                         }
                     }
                 );
@@ -472,10 +471,11 @@ class ValidateProjectStructureCommand {
     ): boolean => {
         let ruleViolated: boolean = true;
 
-        // split the path into array of strings and store the path in reverse order
+        // split the path into array of strings and store the path in reverse order and remove any empty strings from the array
         const watchedFilePathSplit: string[] = newFilePath
-            .split('\\')
-            .reverse();
+            .split('/')
+            .reverse()
+            .filter(Boolean);
 
         // array to store names of the folder based on rules provided by the user
         // paths will be stored in the reverse order so the folder nearest to the file is evaluated with it's corresponding destination first
