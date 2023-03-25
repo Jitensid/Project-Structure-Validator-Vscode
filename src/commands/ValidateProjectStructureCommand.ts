@@ -21,6 +21,9 @@ class ValidateProjectStructureCommand {
     // and to update the tree view if a violated File is deleted by the user
     private fileDeleteEvent: vscode.Disposable | undefined;
 
+    // fileRenameEvent so that when user renames file the TreeView can be updated accordingly
+    private fileRenameEvent: vscode.Disposable | undefined;
+
     // treeView to show files that are violating project structure rules
     private violatedFilesTreeView: vscode.Disposable | undefined;
 
@@ -36,6 +39,9 @@ class ValidateProjectStructureCommand {
 
         // when the cosmiConfig file is not set so the event is initialized as undefined
         this.fileDeleteEvent = undefined;
+
+        // when the cosmiConfig file is not set so the event is initialized as undefined
+        this.fileRenameEvent = undefined;
 
         // when the violatedFilesTreeView is not yet created then it is initialized as undefined
         this.violatedFilesTreeView = undefined;
@@ -87,6 +93,24 @@ class ValidateProjectStructureCommand {
             true
         );
 
+        this.fileRenameEvent = vscode.workspace.onDidRenameFiles((event) => {
+            console.log(event.files);
+
+            // iterate renamed files reported from the event
+            for (const renamedFile of event.files) {
+                // get the actual file path of the file before it was renamed
+                const oldRenamedFilePath: string = renamedFile.oldUri
+                    .toString(true)
+                    .slice()
+                    .replace('file://', '');
+
+                // remove the node from the TreeView if present because the violated file is deleted
+                this.violatedFilesTreeProvider?.removeViolatedFilesTreeItemIfExists(
+                    oldRenamedFilePath
+                );
+            }
+        });
+
         // attach a fileDeleteEvent once the config is successfully loaded
         this.fileDeleteEvent = vscode.workspace.onDidDeleteFiles((event) => {
             // iterate deleted files reported from the event
@@ -120,6 +144,9 @@ class ValidateProjectStructureCommand {
 
                     // dispose the fileDeleteEvent since it is now no longer needed
                     this.fileDeleteEvent!.dispose();
+
+                    // dispose the fileRenameEvent since it is now no longer needed
+                    this.fileRenameEvent!.dispose();
 
                     // dispose the current tree view
                     this.violatedFilesTreeView?.dispose();

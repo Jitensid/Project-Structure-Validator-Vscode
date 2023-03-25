@@ -1,7 +1,7 @@
 import SingleRule from './SingleRuleInterface';
 
 interface Rules {
-	rules: SingleRule[];
+    rules: SingleRule[];
 }
 
 export default Rules;
