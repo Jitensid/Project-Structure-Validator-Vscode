@@ -4,17 +4,9 @@ import ViolatedFilesTreeItem from './ViolatedFilesTreeItem';
 class ViolatedFilesTreeProvider
     implements vscode.TreeDataProvider<ViolatedFilesTreeItem>
 {
-    rootViolatedFilesTreeItem: ViolatedFilesTreeItem | undefined;
-
-    setRootViolatedFilesTreeItem(
-        violatedFilesTreeItem: ViolatedFilesTreeItem
-    ): void {
-        this.rootViolatedFilesTreeItem = violatedFilesTreeItem;
-    }
-
-    getRootViolatedFilesTreeItem(): ViolatedFilesTreeItem | undefined {
-        return this.rootViolatedFilesTreeItem;
-    }
+    // define the root node
+    private rootViolatedFilesTreeItem: ViolatedFilesTreeItem =
+        new ViolatedFilesTreeItem('Violated Files');
 
     private _onDidChangeTreeData: vscode.EventEmitter<
         ViolatedFilesTreeItem | undefined | null | void
@@ -26,18 +18,17 @@ class ViolatedFilesTreeProvider
         ViolatedFilesTreeItem | undefined | null | void
     > = this._onDidChangeTreeData.event;
 
-    refresh(): void {
+    public addViolatedFilesTreeItem(label: string): void {
+        const newViolatedFilesTreeItem = new ViolatedFilesTreeItem(label);
+
+        this.rootViolatedFilesTreeItem.children.push(newViolatedFilesTreeItem);
+
         this._onDidChangeTreeData.fire();
     }
 
-    public addViolatedFilesTreeItem(): void {
-        console.log('Inside the method');
-
-        const x = new ViolatedFilesTreeItem('New Node');
-        this.getRootViolatedFilesTreeItem()!.children.push(x);
-        this.refresh();
-
-        console.log('Outside the method');
+    public removeViolatedFilesTreeItem(): void {
+        this.rootViolatedFilesTreeItem.children.pop();
+        this._onDidChangeTreeData.fire();
     }
 
     getTreeItem(
@@ -45,18 +36,20 @@ class ViolatedFilesTreeProvider
     ): vscode.TreeItem | Thenable<vscode.TreeItem> {
         return element;
     }
+
     getChildren(
         element?: ViolatedFilesTreeItem | undefined
     ): vscode.ProviderResult<ViolatedFilesTreeItem[]> {
-        const rootViolatedFilesTreeItem = new ViolatedFilesTreeItem(
-            'Violated Files'
-        );
-
-        this.setRootViolatedFilesTreeItem(rootViolatedFilesTreeItem);
-
         if (!element) {
-            return [rootViolatedFilesTreeItem];
+            if (this.rootViolatedFilesTreeItem.children.length !== 0) {
+                // expand the root node now since it has some child nodes
+                this.rootViolatedFilesTreeItem.collapsibleState =
+                    vscode.TreeItemCollapsibleState.Expanded;
+            }
+
+            return [this.rootViolatedFilesTreeItem];
         }
+
         return element.children;
     }
 }

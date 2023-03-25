@@ -446,11 +446,11 @@ class ValidateProjectStructureCommand {
                                 fileSystemWatcherArrayElement.errorMessage
                             );
 
-                            // add a new node
-                            this.violatedFilesTreeProvider!.addViolatedFilesTreeItem();
+                            // add the violated file into the TreeView
+                            this.violatedFilesTreeProvider!.addViolatedFilesTreeItem(
+                                vscode.workspace.asRelativePath(event.fsPath)
+                            );
 
-                            // refresh the tree
-                            this.violatedFilesTreeProvider?.refresh();
                         }
                     }
                 );
@@ -559,6 +559,13 @@ class ValidateProjectStructureCommand {
                             vscode.window.showErrorMessage(
                                 vscode.workspace.asRelativePath(matchedFile) +
                                     fileSystemWatcherArrayElement.errorMessage
+                            );
+
+                            // add the violated file into the TreeView
+                            this.violatedFilesTreeProvider!.addViolatedFilesTreeItem(
+                                vscode.workspace.asRelativePath(
+                                    vscode.workspace.asRelativePath(matchedFile)
+                                )
                             );
                         }
                     }
