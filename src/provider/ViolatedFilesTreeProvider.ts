@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import ViolatedFilesTreeItem from './ViolatedFilesTreeItem';
 
 class ViolatedFilesTreeProvider
@@ -18,11 +19,22 @@ class ViolatedFilesTreeProvider
         ViolatedFilesTreeItem | undefined | null | void
     > = this._onDidChangeTreeData.event;
 
-    public addViolatedFilesTreeItem(label: string): void {
+    /**
+     * Function to add a tree node in the TreeView
+     * @param {fileFsPath} string - fsPath of the file for which node is created in the treeView
+     */
+    public addViolatedFilesTreeItem(fileFsPath: string): void {
         const newViolatedFilesTreeItem = new ViolatedFilesTreeItem(
-            label,
-            false
+            path.basename(fileFsPath),
+            false,
+            fileFsPath
         );
+
+        newViolatedFilesTreeItem.command = {
+            title: path.basename(fileFsPath),
+            command: 'vscode.open',
+            arguments: [fileFsPath],
+        };
 
         this.rootViolatedFilesTreeItem.children.push(newViolatedFilesTreeItem);
 

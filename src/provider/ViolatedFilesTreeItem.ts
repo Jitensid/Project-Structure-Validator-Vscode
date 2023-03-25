@@ -6,7 +6,8 @@ class ViolatedFilesTreeItem extends vscode.TreeItem {
 
     constructor(
         readonly label: string,
-        isRoot: boolean = true,
+        readonly isRoot: boolean = true,
+        readonly filePath: string | undefined = undefined,
         children: ViolatedFilesTreeItem[] = []
     ) {
         super(
@@ -16,12 +17,13 @@ class ViolatedFilesTreeItem extends vscode.TreeItem {
                 : vscode.TreeItemCollapsibleState.Expanded
         );
         this.children = children;
-        this.tooltip = 'ERROR MESSAGE TO BE SHOWN TO THE END USER';
+        this.tooltip = 'SAMPLE ERROR MESSAGE';
 
         // set the icons and resource URI for non root nodes only
         if (!isRoot) {
             this.iconPath = vscode.ThemeIcon.File;
             this.resourceUri = vscode.Uri.file(label);
+            this.description = vscode.workspace.asRelativePath(filePath!);
         }
     }
 }

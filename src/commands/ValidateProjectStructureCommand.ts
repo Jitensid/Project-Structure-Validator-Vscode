@@ -9,7 +9,6 @@ import SingleRule from '../interfaces/SingleRuleInterface';
 import Rules from '../interfaces/RulesInterface';
 import FileSystemWatcherArray from '../interfaces/FileSystemWatcherArrayInterface';
 import FileSystemWatcherArrayElement from '../interfaces/FileSystemWatcherArrayElementInterface';
-import ViolatedFilesTreeItem from '../provider/ViolatedFilesTreeItem';
 
 class ValidateProjectStructureCommand {
     // array to store filesystem watcher elements
@@ -448,7 +447,7 @@ class ValidateProjectStructureCommand {
 
                             // add the violated file into the TreeView
                             this.violatedFilesTreeProvider!.addViolatedFilesTreeItem(
-                                vscode.workspace.asRelativePath(event.fsPath)
+                                event.fsPath
                             );
                         }
                     }
@@ -563,9 +562,7 @@ class ValidateProjectStructureCommand {
 
                             // add the violated file into the TreeView
                             this.violatedFilesTreeProvider!.addViolatedFilesTreeItem(
-                                vscode.workspace.asRelativePath(
-                                    vscode.workspace.asRelativePath(matchedFile)
-                                )
+                                matchedFile.fsPath
                             );
                         }
                     }
