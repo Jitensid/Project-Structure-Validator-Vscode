@@ -45,22 +45,26 @@ class ViolatedFilesTreeProvider
     }
 
     public removeViolatedFilesTreeItemIfExists(fileFsPath: string): void {
-        // remove the node from the tree whose file path matches with the deleted file path
-        const newRootViolatedFilesTreeItemChildren =
+        // remove the node matching the fspath
+        const updatedRootViolatedFilesTreeItemChildren: ViolatedFilesTreeItem[] =
             this.rootViolatedFilesTreeItem.children.filter(
-                (rootViolatedFilesTreeItemNode) => {
-                    rootViolatedFilesTreeItemNode.filePath !== fileFsPath;
+                (rootViolatedFilesTreeItemChild) => {
+                    return (
+                        rootViolatedFilesTreeItemChild.filePath !== fileFsPath
+                    );
                 }
             );
 
-        // update the tree only when a file whose node is present in the tree is deleted
+        // if array lengths are not matching then we have tp update the tree since a violated file present
+        // in the tree is removed
         if (
-            newRootViolatedFilesTreeItemChildren.length !==
+            updatedRootViolatedFilesTreeItemChildren.length <
             this.rootViolatedFilesTreeItem.children.length
         ) {
-            // update the children of the Root Node in the TreeView
-            this.rootViolatedFilesTreeItem.children =
-                newRootViolatedFilesTreeItemChildren;
+
+            // update the children of the rootViolatedFilesTreeItem
+            this.rootViolatedFilesTreeItem.children = updatedRootViolatedFilesTreeItemChildren;
+
             // refresh the contents of the TreeView
             this._onDidChangeTreeData.fire();
         }
