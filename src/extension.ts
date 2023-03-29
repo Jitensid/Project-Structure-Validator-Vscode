@@ -12,6 +12,9 @@ export function activate(context: vscode.ExtensionContext) {
     // Now provide the implementation of the command with registerCommand
     // The commandId parameter must match the command field in package.json
 
+    const validateProjectStructureCommand =
+        new ValidateProjectStructureCommand();
+
     // if existing project structure config is found then
     // when the extension is activated it would be loaded
     vscode.workspace
@@ -22,8 +25,6 @@ export function activate(context: vscode.ExtensionContext) {
                     'Loaded Existing Project Structure Configuration'
                 );
 
-                const validateProjectStructureCommand =
-                    new ValidateProjectStructureCommand();
                 validateProjectStructureCommand.executeCommand();
             }
         });
@@ -32,8 +33,6 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             'project-structure-validator.validateProjectStructure',
             () => {
-                const validateProjectStructureCommand =
-                    new ValidateProjectStructureCommand();
                 validateProjectStructureCommand.executeCommand();
             }
         );

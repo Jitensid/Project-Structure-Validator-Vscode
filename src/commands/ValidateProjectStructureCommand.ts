@@ -94,8 +94,6 @@ class ValidateProjectStructureCommand {
         );
 
         this.fileRenameEvent = vscode.workspace.onDidRenameFiles((event) => {
-            console.log(event.files);
-
             // iterate renamed files reported from the event
             for (const renamedFile of event.files) {
                 // get the actual file path of the file before it was renamed
@@ -137,10 +135,7 @@ class ValidateProjectStructureCommand {
                     );
 
                     // dispose the existing fileSystemWatchers now since the config file is deleted
-                    this.fileSystemWatcherArray =
-                        this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray(
-                            this.fileSystemWatcherArray
-                        );
+                    this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray();
 
                     // dispose the fileDeleteEvent since it is now no longer needed
                     this.fileDeleteEvent!.dispose();
@@ -151,7 +146,7 @@ class ValidateProjectStructureCommand {
                     // dispose the current tree view
                     this.violatedFilesTreeView?.dispose();
                 } else {
-                    // remove the node from the TreeView if present because the violated file is deleted
+                    // remove the node from the TreeView if present because a file is deleted
                     this.violatedFilesTreeProvider?.removeViolatedFilesTreeItemIfExists(
                         actualDeletedFilePath
                     );
@@ -172,34 +167,22 @@ class ValidateProjectStructureCommand {
         const rules: Rules = searchForRulesFileConfigResults[1]?.config;
 
         // clean up existing filesystem watchers
-        this.fileSystemWatcherArray =
-            this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray(
-                this.fileSystemWatcherArray
-            );
+        this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray();
 
         // create appropriate fileSystem watchers rules and their destinations based on the rules given by the user
-        this.fileSystemWatcherArray =
-            this.generateFileSystemWatcherRules(rules);
+        this.generateFileSystemWatcherRules(rules);
 
         // attach file creation events based on rules provided by the user
-        this.fileSystemWatcherArray = this.attachFileCreationEvents(
-            this.fileSystemWatcherArray
-        );
+        this.attachFileCreationEvents();
 
         // check files present in the workspace whether the rules are followed or not
-        this.validateExistingFilesInsideWorkspaceFolder(
-            this.fileSystemWatcherArray
-        );
+        this.validateExistingFilesInsideWorkspaceFolder();
     }
 
     /**
      * Function to dispose the existing file system watchers
-     * @param {FileSystemWatcherArray} fileSystemWatcherArray - FileSystemWatcherArray containing list of fileSystemWatcherElement
-     * @returns {FileSystemWatcherArray} fileSystemWatcherArray - FileSystemWatcherArray containing list of fileSystemWatcherElement with disposed fileSystemWatchers
      */
-    private disposeExistingFileSystemWatchersFromFileSystemWatcherArray(
-        fileSystemWatcherArray: FileSystemWatcherArray
-    ): FileSystemWatcherArray {
+    private disposeExistingFileSystemWatchersFromFileSystemWatcherArray(): void {
         //  dispose previously existing FileSystemWatcher
         for (let fileSystemWatcherElement of this.fileSystemWatcherArray
             .fileSystemWatchers) {
@@ -208,8 +191,6 @@ class ValidateProjectStructureCommand {
 
         // remove all the elements from the fileSystemWatcherArray
         this.fileSystemWatcherArray.fileSystemWatchers.splice(0);
-
-        return this.fileSystemWatcherArray;
     }
 
     /**
@@ -404,19 +385,10 @@ class ValidateProjectStructureCommand {
     };
 
     /**
-     *
      * Function to generate FileSystemWatcher from the rules provided by the user
      * @param {Rules} rules - array of filesystem watchers
-     * @returns {FileSystemWatcherArray} fileSystemWatcherArray - fileSystemWatcherArray having fileSystemWatcherArrayElement
      */
-    private generateFileSystemWatcherRules(
-        rules: Rules
-    ): FileSystemWatcherArray {
-        // fileSystemWatcherArray having fileSystemWatcherArrayElements to store watchers and other required properties
-        let fileSystemWatcherArray: FileSystemWatcherArray = {
-            fileSystemWatchers: [],
-        };
-
+    private generateFileSystemWatcherRules(rules: Rules) {
         // iterate all rules
         for (let rule of rules.rules) {
             // get the RelativePattern needed for creating the required FileSystemWatcher based on user's rule
@@ -441,24 +413,18 @@ class ValidateProjectStructureCommand {
                 };
 
             // append the fileSystemWatcherArrayElement
-            fileSystemWatcherArray.fileSystemWatchers.push(
+            this.fileSystemWatcherArray.fileSystemWatchers.push(
                 fileSystemWatcherArrayElement
             );
         }
-
-        return fileSystemWatcherArray;
     }
 
     /**
      * Function to attach file creation events to fileSystem watchers
-     * @param {FileSystemWatcherArray} fileSystemWatcherArray - FileSystemWatcherArray containing list of fileSystemWatcherElement
-     * @returns {FileSystemWatcherArray} fileSystemWatcherArray - FileSystemWatcherArray with file creation event attached to them
      */
-    private attachFileCreationEvents = (
-        fileSystemWatcherArray: FileSystemWatcherArray
-    ): FileSystemWatcherArray => {
+    private attachFileCreationEvents = (): void => {
         // iterate all the fileSystemWatchers present in the fileSystemWatcherArray
-        fileSystemWatcherArray.fileSystemWatchers.map(
+        this.fileSystemWatcherArray.fileSystemWatchers.map(
             (fileSystemWatcherArrayElement) => {
                 // attach a file creation event on the fileSystemWatcher based on the regex
                 fileSystemWatcherArrayElement.fileSystemWatcher.onDidCreate(
@@ -488,8 +454,6 @@ class ValidateProjectStructureCommand {
                 );
             }
         );
-
-        return fileSystemWatcherArray;
     };
 
     /**
@@ -563,12 +527,9 @@ class ValidateProjectStructureCommand {
 
     /**
      * Function to validate already opened files that are matching the rules provided by the user
-     * @param {FileSystemWatcherArray} fileSystemWatcherArray - FileSystemWatcherArray containing list of fileSystemWatcherElement
      */
-    private validateExistingFilesInsideWorkspaceFolder = (
-        fileSystemWatcherArray: FileSystemWatcherArray
-    ) => {
-        for (let fileSystemWatcherArrayElement of fileSystemWatcherArray.fileSystemWatchers) {
+    private validateExistingFilesInsideWorkspaceFolder = () => {
+        for (let fileSystemWatcherArrayElement of this.fileSystemWatcherArray.fileSystemWatchers) {
             // get the relativePatternRegex based on the rule provided by the config
             const relativePatternRegex: string =
                 this.generateRelativePatternRegex(
