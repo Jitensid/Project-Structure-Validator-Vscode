@@ -12,7 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Now provide the implementation of the command with registerCommand
     // The commandId parameter must match the command field in package.json
 
-    const validateProjectStructureCommand =
+    const validateProjectStructureCommand: ValidateProjectStructureCommand =
         new ValidateProjectStructureCommand();
 
     // if existing project structure config is found then
