@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs';
 import * as constants from '../constants/constants';
 import * as utils from '../utils/utils';
 import searchForRulesFileConfig from '../rulesFileConfig/rulesFileConfigUtils';
@@ -93,66 +95,98 @@ class ValidateProjectStructureCommand {
             true
         );
 
-        this.fileRenameEvent = vscode.workspace.onDidRenameFiles((event) => {
-            // iterate renamed files reported from the event
-            for (const renamedFile of event.files) {
-                // get the actual file path of the file before it was renamed
-                const oldRenamedFilePath: string = renamedFile.oldUri
-                    .toString(true)
-                    .slice()
-                    .replace('file://', '');
-
-                // remove the node from the TreeView if present because the violated file is deleted
-                this.violatedFilesTreeProvider?.removeViolatedFilesTreeItemIfExists(
-                    oldRenamedFilePath
-                );
-            }
-        });
-
-        // attach a fileDeleteEvent once the config is successfully loaded
-        this.fileDeleteEvent = vscode.workspace.onDidDeleteFiles((event) => {
-            // iterate deleted files reported from the event
-            for (const deletedFile of event.files) {
-                // get the actual deleted file path
-                const actualDeletedFilePath: string = deletedFile
-                    .toString(true)
-                    .slice()
-                    .replace('file://', '');
-
-                if (
-                    actualDeletedFilePath ===
-                    this.cosmiConfigFilePath?.toString()
-                ) {
-                    vscode.window.showWarningMessage(
-                        'Config file has been deleted!'
+        this.fileRenameEvent = vscode.workspace.onWillRenameFiles(
+            async (event) => {
+                // iterate renamed files reported from the event
+                for (const renamedFile of event.files) {
+                    const fileStat = await vscode.workspace.fs.stat(
+                        renamedFile.oldUri
                     );
 
-                    // set the context to false
-                    vscode.commands.executeCommand(
-                        'setContext',
-                        'project-structure-validator.hasConfigFile',
-                        false
-                    );
+                    if (fileStat.type === vscode.FileType.Directory) {
+                        console.debug(
+                            'Directory is Deleted so now all files present inside the workspace would be validated now'
+                        );
 
-                    // dispose the existing fileSystemWatchers now since the config file is deleted
-                    this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray();
+                        this.validateExistingFilesInsideWorkspaceFolder();
 
-                    // dispose the fileDeleteEvent since it is now no longer needed
-                    this.fileDeleteEvent!.dispose();
+                        return;
+                    }
 
-                    // dispose the fileRenameEvent since it is now no longer needed
-                    this.fileRenameEvent!.dispose();
+                    // get the actual file path of the file before it was renamed
+                    const oldRenamedFilePath: string = renamedFile.oldUri
+                        .toString(true)
+                        .slice()
+                        .replace('file://', '');
 
-                    // dispose the current tree view
-                    this.violatedFilesTreeView?.dispose();
-                } else {
-                    // remove the node from the TreeView if present because a file is deleted
+                    // remove the node from the TreeView if present because the violated file is deleted
                     this.violatedFilesTreeProvider?.removeViolatedFilesTreeItemIfExists(
-                        actualDeletedFilePath
+                        oldRenamedFilePath
                     );
                 }
             }
-        });
+        );
+
+        // attach a fileDeleteEvent once the config is successfully loaded
+        this.fileDeleteEvent = vscode.workspace.onWillDeleteFiles(
+            async (event) => {
+                // iterate deleted files reported from the event
+                for (const deletedFile of event.files) {
+                    const fileStat = await vscode.workspace.fs.stat(
+                        deletedFile
+                    );
+
+                    if (fileStat.type === vscode.FileType.Directory) {
+                        console.debug(
+                            'Directory is Deleted so now all files present inside the workspace would be validated now'
+                        );
+
+                        this.validateExistingFilesInsideWorkspaceFolder();
+
+                        return;
+                    }
+
+                    // get the actual deleted file path
+                    const actualDeletedFilePath: string = deletedFile
+                        .toString(true)
+                        .slice()
+                        .replace('file://', '');
+
+                    if (
+                        actualDeletedFilePath ===
+                        this.cosmiConfigFilePath?.toString()
+                    ) {
+                        vscode.window.showWarningMessage(
+                            'Config file has been deleted!'
+                        );
+
+                        // set the context to false
+                        vscode.commands.executeCommand(
+                            'setContext',
+                            'project-structure-validator.hasConfigFile',
+                            false
+                        );
+
+                        // dispose the existing fileSystemWatchers now since the config file is deleted
+                        this.disposeExistingFileSystemWatchersFromFileSystemWatcherArray();
+
+                        // dispose the fileDeleteEvent since it is now no longer needed
+                        this.fileDeleteEvent!.dispose();
+
+                        // dispose the fileRenameEvent since it is now no longer needed
+                        this.fileRenameEvent!.dispose();
+
+                        // dispose the current tree view
+                        this.violatedFilesTreeView?.dispose();
+                    } else {
+                        // remove the node from the TreeView if present because a file is deleted
+                        this.violatedFilesTreeProvider?.removeViolatedFilesTreeItemIfExists(
+                            actualDeletedFilePath
+                        );
+                    }
+                }
+            }
+        );
 
         this.violatedFilesTreeProvider = new ViolatedFilesTreeProvider();
 
@@ -529,7 +563,10 @@ class ValidateProjectStructureCommand {
      * Function to validate already opened files that are matching the rules provided by the user
      */
     private validateExistingFilesInsideWorkspaceFolder = () => {
-        for (let fileSystemWatcherArrayElement of this.fileSystemWatcherArray.fileSystemWatchers) {
+        this.violatedFilesTreeProvider!.clearViolatedFilesTreeItem();
+
+        for (let fileSystemWatcherArrayElement of this.fileSystemWatcherArray
+            .fileSystemWatchers) {
             // get the relativePatternRegex based on the rule provided by the config
             const relativePatternRegex: string =
                 this.generateRelativePatternRegex(
