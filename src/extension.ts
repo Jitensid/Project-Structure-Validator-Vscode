@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import ValidateProjectStructureCommand from './commands/ValidateProjectStructureCommand';
+import GenerateProjectStructureConfigFile from './commands/GenerateProjectStructureConfigFile';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -14,6 +15,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     const validateProjectStructureCommand: ValidateProjectStructureCommand =
         new ValidateProjectStructureCommand();
+
+    const generateProjectStructureConfigFileCommand: GenerateProjectStructureConfigFile =
+        new GenerateProjectStructureConfigFile();
 
     // if existing project structure config is found then
     // when the extension is activated it would be loaded
@@ -41,8 +45,8 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             'project-structure-validator.generateProjectStructureConfigFile',
             () => {
-                vscode.window.showInformationMessage(
-                    'Config File Generator Command is Executed'
+                generateProjectStructureConfigFileCommand.executeCommand(
+                    context
                 );
             }
         );

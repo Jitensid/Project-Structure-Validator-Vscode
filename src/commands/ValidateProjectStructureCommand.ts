@@ -64,7 +64,7 @@ class ValidateProjectStructureCommand {
 
         // error status and config after searching and parsing of config
         const searchForRulesFileConfigResults: [boolean, CosmiconfigResult] =
-            searchForRulesFileConfig();
+            searchForRulesFileConfig(true);
 
         // if some error in config then terminate further execution of the command
         if (searchForRulesFileConfigResults[0]) {
