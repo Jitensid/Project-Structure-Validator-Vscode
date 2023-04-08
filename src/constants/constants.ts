@@ -14,7 +14,7 @@ const messages: { [key: string]: string } = {
     configFileGenerationSuccess: 'Successfully created the config file',
 };
 
-const PROJECT_STRUCTURE_CONFIG_FILENAME: string = '.structurerc.json';
+const PROJECT_STRUCTURE_CONFIG_FILENAME: string = '.structurerc.yaml';
 
 const ASSETS_FOLDER_PATH: string = 'assets';
 
