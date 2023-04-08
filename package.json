@@ -2,7 +2,7 @@
     "name": "project-structure-validator",
     "displayName": "Project Structure Validator",
     "description": "This extension helps you to validate your project structure and informs you about the errors !",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "JitenSidhpura",
     "author": {
         "name": "Jiten Sidhpura"

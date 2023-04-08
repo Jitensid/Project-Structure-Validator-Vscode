@@ -43,12 +43,10 @@ class GenerateProjectStructureConfigFile {
 
         // Get the source file path within the extension
         const sourcePath: vscode.Uri = vscode.Uri.file(
-            context.asAbsolutePath(
-                path.join(
-                    'src',
-                    constants.ASSETS_FOLDER_PATH,
-                    constants.PROJECT_STRUCTURE_CONFIG_FILENAME
-                )
+            path.join(
+                context.extensionPath,
+                constants.ASSETS_FOLDER_PATH,
+                constants.PROJECT_STRUCTURE_CONFIG_FILENAME
             )
         );
 
@@ -80,6 +78,8 @@ class GenerateProjectStructureConfigFile {
             vscode.window.showErrorMessage(
                 constants.messages.configFileGenerationError
             );
+
+            console.error(error);
         }
     }
 }
