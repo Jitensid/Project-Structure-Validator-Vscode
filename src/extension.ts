@@ -22,12 +22,14 @@ export function activate(context: vscode.ExtensionContext) {
     // if existing project structure config is found then
     // when the extension is activated it would be loaded
     vscode.workspace
-        .findFiles('**/.structurerc.{json,yaml,yml,js,cjs}')
+        .findFiles('.structurerc.{json,yaml,yml,js,cjs}')
         .then((value) => {
             if (value.length > 0) {
                 vscode.window.showInformationMessage(
                     'Loaded Existing Project Structure Configuration'
                 );
+
+                console.debug('Found an existing config file');
 
                 validateProjectStructureCommand.executeCommand();
             }
