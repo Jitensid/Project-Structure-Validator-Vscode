@@ -44,6 +44,10 @@ class ViolatedFilesTreeProvider
         this._onDidChangeTreeData.fire();
     }
 
+    /**
+     * Function to remove a tree node from the TreeView
+     * @param {fileFsPath} string - fsPath of the file for which node is created in the treeView
+     */
     public removeViolatedFilesTreeItemIfExists(fileFsPath: string): void {
         // remove the node matching the fspath
         const updatedRootViolatedFilesTreeItemChildren: ViolatedFilesTreeItem[] =
@@ -61,13 +65,24 @@ class ViolatedFilesTreeProvider
             updatedRootViolatedFilesTreeItemChildren.length <
             this.rootViolatedFilesTreeItem.children.length
         ) {
-
             // update the children of the rootViolatedFilesTreeItem
-            this.rootViolatedFilesTreeItem.children = updatedRootViolatedFilesTreeItemChildren;
+            this.rootViolatedFilesTreeItem.children =
+                updatedRootViolatedFilesTreeItemChildren;
 
             // refresh the contents of the TreeView
             this._onDidChangeTreeData.fire();
         }
+    }
+
+    /**
+     * Function to clear all the child nodes from the TreeView
+     */
+    public clearViolatedFilesTreeItem(): void {
+        // remove all the child nodes from the root of the TreeView
+        this.rootViolatedFilesTreeItem.children = [];
+
+        // refresh the contents of the TreeView
+        this._onDidChangeTreeData.fire();
     }
 
     getTreeItem(

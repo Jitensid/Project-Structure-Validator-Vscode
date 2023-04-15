@@ -1,0 +1,7 @@
+#This would create a rule to make sure that
+# all `js` file starting with `hello` should be present in the `frontend`
+rules:
+    - rule:
+          extensions: js
+          startsWith: hello
+          destination: [frontend]
