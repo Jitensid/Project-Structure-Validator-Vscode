@@ -22,7 +22,7 @@ jobs:
                   node-version: ${{ matrix.node-version }}
 
             - name: Install Node Modules
-            - uses: npm install
+            - run: npm install
 
             - name: Format Code using prettier
-            - uses: npm run format
+            - run: npm run format
