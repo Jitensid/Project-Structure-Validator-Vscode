@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # Run Prettier on staged files
-npx prettier --write $1
+npx prettier --write --parser=babel $1

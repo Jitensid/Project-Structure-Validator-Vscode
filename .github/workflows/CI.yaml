@@ -6,17 +6,23 @@ on:
 jobs:
     test:
         runs-on: ubuntu-latest
-        node-version: [16.x]
 
-    steps:
-        - name: Checkout Code
-        - uses: actions/checkout@v2
+        strategy:
+            matrix:
+                node-version: [16.x]
+                os: [ubuntu=latest]
 
-        - name: Install Nodejs
-          uses: actions/setup-node@v2
+        steps:
+            - name: Checkout Code
+            - uses: actions/checkout@v2
 
-        - name: Install Node Modules
-          run: npm install
+            - name: Use Node.js ${{matrix.node-version}}
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: ${{ matrix.node-version }}
 
-        - name: Format Code using Prettier
-          run: npm run format
+            - name: Install Node Modules
+            - uses: npm install
+
+            - name: Format Code using prettier
+            - uses: npm run format
