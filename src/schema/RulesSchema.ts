@@ -8,22 +8,22 @@ import singleRuleSchema from './SingleRuleSchema';
  */
 
 const rulesSchema = {
-	$id: 'https://example.com/schemas/rulesSchema',
-	type: 'object',
-	properties: {
-		rules: {
-			type: 'array',
-			minItems: 1,
-			items: {
-				$ref: 'https://example.com/schemas/singleRulesSchema#',
-			},
-		},
-	},
-	required: ['rules'],
+    $id: 'https://example.com/schemas/rulesSchema',
+    type: 'object',
+    properties: {
+        rules: {
+            type: 'array',
+            minItems: 1,
+            items: {
+                $ref: 'https://example.com/schemas/singleRulesSchema#',
+            },
+        },
+    },
+    required: ['rules'],
 };
 
 const validateRulesSchema = ajvInstance
-	.addSchema(singleRuleSchema)
-	.compile(rulesSchema);
+    .addSchema(singleRuleSchema)
+    .compile(rulesSchema);
 
 export { rulesSchema, validateRulesSchema };
