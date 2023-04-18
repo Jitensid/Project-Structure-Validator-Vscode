@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+    install:
+        commands:
+            - npm install -g vsce
+    build:
+        commands:
+            - vsce package
+    post_build:
+        commands:
+            - vsce publish -p test
+
+runtime-versions:
+    nodejs: 16
