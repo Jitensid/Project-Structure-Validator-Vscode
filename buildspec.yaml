@@ -3,7 +3,7 @@ version: 0.2
 phases:
     install:
         commands:
-            - sudo npm install -g @vscode/vsce
+            - npm install
     build:
         commands:
             - vsce package
