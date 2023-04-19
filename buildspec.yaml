@@ -4,12 +4,13 @@ phases:
     pre_build:
         commands:
             - npm install
+            - npm install -g @vscode/vsce
     build:
         commands:
             - vsce package
     post_build:
         commands:
-            - vsce publish -p test
+            - vsce publish
 
 runtime-versions:
     nodejs: 16
