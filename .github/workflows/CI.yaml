@@ -26,14 +26,11 @@ jobs:
             - name: Format Code using prettier
               run: npm run format
 
-            - name: Commit the formatted code
+            - name: Commit formatted code
+              if: "!contains(github.event.head_commit.message, '[skip ci]')"
               run: |
-                  if [[ "$(git rev-parse HEAD)" != "$(git rev-parse ${GITHUB_SHA})" ]]; then
-                    npx prettier --write .
-                    git config --local user.email "actions@github.com"
-                    git config --local user.name "GitHub Action"
-                    git commit -am "Run Prettier"
-                    git push
-                  fi
-              env:
-                  GITHUB_SHA: ${{ steps.git-check.outputs.lastcommit }}
+                  git config --local user.email "actions@github.com"
+                  git config --local user.name "GitHub Action"
+                  git add .
+                  git commit -m "Auto-format code using Prettier"
+                  git push
