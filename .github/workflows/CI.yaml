@@ -25,3 +25,15 @@ jobs:
 
             - name: Format Code using prettier
               run: npm run format
+
+            - name: Commit the formatted code
+              run: |
+                  if [[ "$(git rev-parse HEAD)" != "$(git rev-parse ${GITHUB_SHA})" ]]; then
+                    npx prettier --write .
+                    git config --local user.email "actions@github.com"
+                    git config --local user.name "GitHub Action"
+                    git commit -am "Run Prettier"
+                    git push
+                  fi
+              env:
+                  GITHUB_SHA: ${{ steps.git-check.outputs.lastcommit }}
