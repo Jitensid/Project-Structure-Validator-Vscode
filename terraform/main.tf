@@ -96,4 +96,14 @@ resource "aws_codebuild_project" "vscode_extension_publish_build_project" {
 resource "aws_codebuild_webhook" "aws_codebuild_webhook" {
   project_name = aws_codebuild_project.vscode_extension_publish_build_project.name
   build_type   = "BUILD"
+  filter_group {
+    filter {
+      type    = "EVENT"
+      pattern = "PUSH"
+    }
+    filter {
+      type    = "COMMIT_MESSAGE"
+      pattern = "^(?!Merge pull request).*"
+    }
+  }
 }
