@@ -57,7 +57,7 @@ resource "aws_iam_role_policy_attachment" "codebuild-service-role-ssm-parameter-
 resource "aws_codebuild_source_credential" "github_credentials" {
   auth_type   = "PERSONAL_ACCESS_TOKEN"
   server_type = "GITHUB"
-  token       = "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"
+  token       = var.GITHUB_PAT_TOKEN
 }
 
 resource "aws_codebuild_project" "vscode_extension_publish_build_project" {
