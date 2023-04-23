@@ -103,7 +103,7 @@ resource "aws_codebuild_webhook" "aws_codebuild_webhook" {
     }
     filter {
       type    = "COMMIT_MESSAGE"
-      pattern = "^(?!Merge pull request).*"
+      pattern = "^Merge pull request.*"
     }
   }
 }
