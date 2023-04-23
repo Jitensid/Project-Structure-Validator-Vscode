@@ -1,4 +1,4 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
 
-npx lint-staged
+# Run Prettier on staged files
+npx prettier --write --parser=babel $1

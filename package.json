@@ -2,7 +2,7 @@
     "name": "project-structure-validator",
     "displayName": "Project Structure Validator",
     "description": "This extension helps you to validate your project structure and informs you about the errors !",
-    "version": "0.0.4",
+    "version": "0.0.6",
     "publisher": "JitenSidhpura",
     "author": {
         "name": "Jiten Sidhpura"
@@ -109,7 +109,8 @@
         "pretest": "npm run compile-tests && npm run compile && npm run lint",
         "lint": "eslint src --ext ts",
         "test": "node ./out/test/runTest.js",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "format": "prettier --write ./src"
     },
     "devDependencies": {
         "@types/glob": "^7.2.0",
@@ -124,7 +125,7 @@
         "cosmiconfig": "^7.0.1",
         "eslint": "^8.18.0",
         "glob": "^8.0.3",
-        "husky": "^8.0.1",
+        "husky": "^8.0.0",
         "lint-staged": "^13.0.3",
         "mocha": "^10.0.0",
         "prettier": "^2.7.1",

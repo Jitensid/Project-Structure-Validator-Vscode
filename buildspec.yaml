@@ -1,0 +1,19 @@
+version: 0.2
+
+env:
+    parameter-store:
+        VSCODE_EXTENSION_SECRET_TOKEN: /vscode_extension_secret_token
+phases:
+    pre_build:
+        commands:
+            - npm install
+            - npm install -g @vscode/vsce
+    build:
+        commands:
+            - vsce package
+    post_build:
+        commands:
+            - vsce publish -p $VSCODE_EXTENSION_SECRET_TOKEN
+
+runtime-versions:
+    nodejs: 16

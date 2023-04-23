@@ -1,1 +1,3 @@
 ## Project Structure Validator
+
+![AWS CODEBUILD Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiMEh1c3ZsWmgyUU9uOVEweGQySkZkNnpnRnV1eUNlMGVuejNDbXUrV05XSkIyMjFSTVlkM0l6NlVFUHAwTkFIU0JoaTl5SkVHaEo1allkVUhxYXJpTWVVPSIsIml2UGFyYW1ldGVyU3BlYyI6IjZWaHhld04xR1hIeGx6blMiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
