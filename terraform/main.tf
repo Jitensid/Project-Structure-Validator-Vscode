@@ -65,6 +65,7 @@ resource "aws_codebuild_project" "vscode_extension_publish_build_project" {
   description    = "CodeBuild project to automatically publish vscode extension to the VSCODE Marketplace"
   build_timeout  = "5"
   queued_timeout = "5"
+  badge_enabled  = true
 
   service_role = aws_iam_role.codebuild.arn
 
@@ -89,10 +90,21 @@ resource "aws_codebuild_project" "vscode_extension_publish_build_project" {
     }
   }
 
-  source_version = "develop"
+  source_version = "main"
 }
 
 resource "aws_codebuild_webhook" "aws_codebuild_webhook" {
   project_name = aws_codebuild_project.vscode_extension_publish_build_project.name
   build_type   = "BUILD"
+
+  filter_group {
+    filter {
+      type    = "EVENT"
+      pattern = "PULL_REQUEST_MERGED"
+    }
+    filter {
+      type    = "HEAD_REF"
+      pattern = "refs/heads/main"
+    }
+  }
 }
