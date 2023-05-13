@@ -472,10 +472,6 @@ class ValidateProjectStructureCommand {
                         // if rule is violated then display a meaningful error message to the user
                         if (ruleViolated) {
                             vscode.window.showErrorMessage(
-                                vscode.workspace.asRelativePath(event.fsPath)
-                            );
-
-                            vscode.window.showErrorMessage(
                                 fileSystemWatcherArrayElement.errorMessage
                             );
 
@@ -589,6 +585,7 @@ class ValidateProjectStructureCommand {
                         if (ruleViolated) {
                             vscode.window.showErrorMessage(
                                 vscode.workspace.asRelativePath(matchedFile) +
+                                    ' ' +
                                     fileSystemWatcherArrayElement.errorMessage
                             );
 
