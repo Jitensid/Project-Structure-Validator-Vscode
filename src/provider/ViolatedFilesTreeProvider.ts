@@ -34,7 +34,7 @@ class ViolatedFilesTreeProvider
         newViolatedFilesTreeItem.command = {
             title: path.basename(fileFsPath),
             command: 'vscode.open',
-            arguments: [fileFsPath],
+            arguments: [vscode.Uri.file(fileFsPath)],
         };
 
         // add the new node as child to the root node
