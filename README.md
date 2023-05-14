@@ -21,7 +21,7 @@ This extension can be especially useful for larger projects or teams, where main
 3. Generate a project structure config file using the command `Generate Project Structure Config File`. (This will create a `.structurerc.yaml` file in the root folder)
 4. Once your configuration file is ready run the command `Validate Project Structure` to validate the project structure.
 
-https://github.com/Jitensid/Project-Structure-Validator-Vscode/assets/46622106/edbeec20-6ae1-4c9c-a597-6732f1841b89
+![Extension GIF](Project_Structure_Validator_VSCode.gif)
 
 # Defining Rules in Config File
 
