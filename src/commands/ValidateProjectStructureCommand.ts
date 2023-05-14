@@ -146,14 +146,29 @@ class ValidateProjectStructureCommand {
                         return;
                     }
 
+                    vscode.window.showInformationMessage(
+                        'Deleted File Path: ',
+                        deletedFile.fsPath
+                    );
+
                     // get the actual deleted file path
                     const actualDeletedFilePath: string = deletedFile
                         .toString(true)
                         .slice()
                         .replace('file://', '');
 
+                    vscode.window.showInformationMessage(
+                        'Actual Deleted File Path: ',
+                        actualDeletedFilePath
+                    );
+
+                    vscode.window.showInformationMessage(
+                        'Cosmic Path',
+                        this.cosmiConfigFilePath!.toString()
+                    );
+
                     if (
-                        actualDeletedFilePath ===
+                        deletedFile.fsPath ===
                         this.cosmiConfigFilePath?.toString()
                     ) {
                         vscode.window.showWarningMessage(
@@ -181,7 +196,7 @@ class ValidateProjectStructureCommand {
                     } else {
                         // remove the node from the TreeView if present because a file is deleted
                         this.violatedFilesTreeProvider?.removeViolatedFilesTreeItemIfExists(
-                            actualDeletedFilePath
+                            deletedFile.fsPath
                         );
                     }
                 }
