@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as constants from '../constants/constants';
 import * as utils from '../utils/utils';
 import searchForRulesFileConfig from '../rulesFileConfig/rulesFileConfigUtils';
@@ -492,11 +493,21 @@ class ValidateProjectStructureCommand {
     ): boolean => {
         let ruleViolated: boolean = true;
 
-        // split the path into array of strings and store the path in reverse order and remove any empty strings from the array
-        const watchedFilePathSplit: string[] = newFilePath
-            .split('/')
-            .reverse()
-            .filter(Boolean);
+        let watchedFilePathSplit: string[];
+
+        if (os.platform() === 'win32') {
+            // split the path into array of strings and store the path in reverse order and remove any empty strings from the array
+            watchedFilePathSplit = newFilePath
+                .split('\\')
+                .reverse()
+                .filter(Boolean);
+        } else {
+            // split the path into array of strings and store the path in reverse order and remove any empty strings from the array
+            watchedFilePathSplit = newFilePath
+                .split('/')
+                .reverse()
+                .filter(Boolean);
+        }
 
         // array to store names of the folder based on rules provided by the user
         // paths will be stored in the reverse order so the folder nearest to the file is evaluated with it's corresponding destination first
