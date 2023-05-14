@@ -527,8 +527,9 @@ class ValidateProjectStructureCommand {
         else if (
             Array.isArray(fileSystemWatcherArrayElement.rule.rule.destination)
         ) {
-            fileSystemWatcherArrayElementDestinationPaths =
-                fileSystemWatcherArrayElement.rule.rule.destination.reverse();
+            fileSystemWatcherArrayElementDestinationPaths = [
+                ...fileSystemWatcherArrayElement.rule.rule.destination,
+            ].reverse();
         }
 
         // folder index of the newly file created
