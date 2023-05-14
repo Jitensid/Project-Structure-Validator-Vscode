@@ -3,6 +3,9 @@ name: Format Code CI
 on:
     push:
         branches: ['develop']
+        paths:
+            - '**.ts'
+            - '**.js'
 jobs:
     test:
         runs-on: ubuntu-latest
