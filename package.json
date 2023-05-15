@@ -7,7 +7,7 @@
     "author": {
         "name": "Jiten Sidhpura"
     },
-    "icon": "$(file-submodule)",
+    "icon": "Project Structure Validator.png",
     "homepage": "https://github.com/Jitensid/Project-Structure-Validator",
     "repository": {
         "type": "git",
