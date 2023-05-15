@@ -1,6 +1,6 @@
 # Project Structure Validator
 
-![AWS CODEBUILD Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiVm9odXBpT3ZYMUlUVU44WlpQT2V2MnQ5OVRtYjlKaXRXR3g1elYxbEdDNkNJSDJ6OEpRdVpUYWhrblFYU2M1aE5ETWtCeE1lN1hZeWp1am1mV1lwWG80PSIsIml2UGFyYW1ldGVyU3BlYyI6InBkR0RWNkdlbmdqd3h6c3MiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
+![AWS CODEBUILD Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiUU5ibEdoVHB4TjhBRHk5blpSdU5kaHRtSjNZQmV5UmxOOGtES3FrS1FKUFNmbHFjNW5HQmpqRjVjVXk4VW9XNFU5ai9TdzZTbHBsaURCdXJQcjA5UUJZPSIsIml2UGFyYW1ldGVyU3BlYyI6IkowRlU0TGtZdVhuQjNMYXMiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
 
 # Installation
 
@@ -22,7 +22,6 @@ This extension can be especially useful for larger projects or teams, where main
 4. Once your configuration file is ready run the command `Validate Project Structure` to validate the project structure.
 
 ![Project_Structure_Validator_VSCode](https://raw.githubusercontent.com/Jitensid/Project-Structure-Validator-Vscode/main/Project_Structure_Validator_VSCode.gif)
-
 
 # Defining Rules in Config File
 
