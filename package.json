@@ -2,12 +2,12 @@
     "name": "project-structure-validator",
     "displayName": "Project Structure Validator",
     "description": "This extension helps you to validate your project structure and informs you about the errors !",
-    "version": "0.0.11",
+    "version": "0.0.12",
     "publisher": "JitenSidhpura",
     "author": {
         "name": "Jiten Sidhpura"
     },
-    "icon": "$(file-submodule)",
+    "icon": "Project Structure Validator.png",
     "homepage": "https://github.com/Jitensid/Project-Structure-Validator",
     "repository": {
         "type": "git",
